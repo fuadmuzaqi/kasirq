@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Kasir Cloud Pro - 58mm Thermal Edition</title>
+  <title>Kasir Cloud Pro - Thermal 58mm Edition</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <style>
     :root {
@@ -36,7 +36,6 @@
     .field-group { margin-bottom: 12px; }
     label { font-size: 0.7rem; color: var(--muted); display: block; margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
     input { width: 100%; height: var(--control-minh); padding: 0 14px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; outline: none; }
-    input:focus { border-color: var(--primary); }
     
     .btn { width: 100%; height: var(--control-minh); border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
     .btn:active { transform: scale(0.98); }
@@ -58,26 +57,29 @@
     .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
     .dialog { background: #1e293b; width: 100%; max-width: 400px; border-radius: 20px; padding: 24px; }
 
-    /* PRINT THERMAL 58mm (32 chars) */
+    /* CSS KHUSUS PRINT - Dioptimalkan untuk Mobile & Thermal 58mm */
     #printArea { display: none; }
     @media print {
-      @page { margin: 0; size: auto; }
+      @page { margin: 0; size: 58mm auto; }
       body { background: white !important; margin: 0; padding: 0; }
-      .app, .bottom-bar, .backdrop, header, .tabs { display: none !important; }
+      .app, .bottom-bar, .backdrop, header, .tabs, main { display: none !important; }
       #printArea { 
         display: block !important; 
-        width: 58mm; 
+        width: 54mm; /* Sedikit lebih kecil dari 58mm untuk margin fisik printer */
         color: black !important;
-        margin: 0;
-        padding: 0;
+        background: white !important;
+        position: absolute;
+        top: 0; left: 0;
+        margin: 0; padding: 0;
       }
       pre { 
         white-space: pre-wrap !important; 
         font-family: 'Courier New', Courier, monospace !important; 
         font-size: 10pt; 
-        line-height: 1.3; 
+        line-height: 1.2; 
         margin: 0;
-        padding: 4mm;
+        padding: 2mm;
+        color: black !important;
       }
     }
   </style>
@@ -149,7 +151,7 @@
           <input id="adminSearchInput" placeholder="Cari stok..." oninput="renderAdminProducts(1)" style="margin-bottom: 10px;" />
           <div class="table-wrapper">
             <table>
-              <thead><tr><th>Produk</th><th>Stok</th><th>Aksi</th></tr></thead>
+              <thead><tr><th>Produk (A-Z)</th><th>Stok</th><th>Aksi</th></tr></thead>
               <tbody id="adminProductTableBody"></tbody>
             </table>
           </div>
@@ -261,7 +263,6 @@
       if(t === 'laporan') { reprintCurrentPage = 1; renderReport(); }
     }
 
-    // --- KASIR ---
     function renderProductList() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       const wrapper = document.getElementById('searchResultWrapper');
@@ -324,33 +325,40 @@
       }
     }
 
-    // --- LOGIKA CETAK 58mm (FIX BLANK) ---
+    // --- LOGIKA CETAK 58MM (32 Karakter) ---
     function printStruk(trx) {
       const W = 32; 
-      const center = (s) => " ".repeat(Math.max(0, Math.floor((W - s.length) / 2))) + s;
+      const center = (s) => {
+        const space = Math.max(0, Math.floor((W - s.length) / 2));
+        return " ".repeat(space) + s;
+      };
       const justify = (l, r) => {
-        const space = Math.max(1, W - l.length - r.length);
+        const space = Math.max(1, W - String(l).length - String(r).length);
         return l + " ".repeat(space) + r;
       };
+      // Fungsi Wrap Text untuk Nama Barang Panjang
       const wrapText = (text) => {
         let lines = [];
-        for (let i = 0; i < text.length; i += W) { lines.push(text.substring(i, i + W)); }
+        for (let i = 0; i < text.length; i += W) {
+          lines.push(text.substring(i, i + W));
+        }
         return lines;
       };
 
       let res = "";
       res += center(settings.name || "TOKO") + "\n";
       if(settings.address) res += center(settings.address) + "\n";
-      if(settings.phone) res += center("WA: " + settings.phone) + "\n";
+      if(settings.phone) res += center("HP: " + settings.phone) + "\n";
       res += "-".repeat(W) + "\n";
       res += justify("INV: " + trx.id, new Date(trx.date).toLocaleDateString('id-ID')) + "\n";
       res += "-".repeat(W) + "\n";
 
       trx.items.forEach(i => {
         const sub = (i.qty * i.price - i.discount);
-        wrapText(i.name).forEach(line => res += line + "\n");
-        res += justify(`${i.qty} x ${i.price.toLocaleString()}`, sub.toLocaleString()) + "\n";
-        if(i.discount > 0) res += justify(" Disc", "-" + i.discount.toLocaleString()) + "\n";
+        const nameLines = wrapText(i.name);
+        nameLines.forEach(line => res += line + "\n");
+        res += justify(` ${i.qty} x ${i.price.toLocaleString()}`, sub.toLocaleString()) + "\n";
+        if(i.discount > 0) res += justify("  Disc", "-" + i.discount.toLocaleString()) + "\n";
       });
 
       res += "-".repeat(W) + "\n";
@@ -363,14 +371,14 @@
       const pArea = document.getElementById('printArea');
       pArea.innerHTML = `<pre>${res}</pre>`;
 
-      // Delay rendering agar mobile browser menangkap konten
+      // Delay rendering agar mobile browser menangkap konten sebelum dialog print muncul
       setTimeout(() => {
         window.print();
-        setTimeout(() => { pArea.innerHTML = ""; }, 1500);
-      }, 800);
+        // Kosongkan area setelah 1 detik agar tidak mengganggu UI utama
+        setTimeout(() => { pArea.innerHTML = ""; }, 1000);
+      }, 700);
     }
 
-    // --- PRODUK & PAGINASI ---
     async function saveProduct() {
       const p = { id: document.getElementById('pId').value || "p"+Date.now(), name: document.getElementById('pName').value, buy: parseInt(document.getElementById('pBuy').value), sell: parseInt(document.getElementById('pSell').value), stock: parseInt(document.getElementById('pStock').value), sku: document.getElementById('pSku').value };
       if(!p.name) return alert("Nama wajib!");
@@ -419,7 +427,6 @@
       document.getElementById('formTitle').innerText = "Data Produk";
     }
 
-    // --- LAPORAN & PAGINASI CETAK ---
     async function renderReport() {
       const sales = await secureFetch(`/api/sales?month=${document.getElementById('reportMonth').value}`);
       currentSales = sales;
@@ -464,7 +471,7 @@
       const blob = new Blob([csv], { type: 'text/csv' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `Laporan.csv`;
+      a.download = `Laporan_Kasir.csv`;
       a.click();
     }
 
@@ -474,7 +481,7 @@
     }
 
     async function resetData() {
-      if(confirm("Hapus semua data?")) {
+      if(confirm("Hapus semua data di Cloud?")) {
         await secureFetch('/api/settings', 'DELETE');
         location.reload();
       }
