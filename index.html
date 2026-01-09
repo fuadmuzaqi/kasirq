@@ -367,3 +367,47 @@
 
     async function renderReport() {
       const month = document.getElementById('reportMonth').value;
+      const sales = await secureFetch(`/api/sales?month=${month}`);
+      currentSales = sales;
+      const now = new Date();
+
+      document.getElementById('reprintLogBody').innerHTML = sales.filter(s => (now - new Date(s.date))/(1000*60*60*24) <= 3).map(s => `<tr>
+        <td><small>${new Date(s.date).toLocaleDateString('id-ID')}</small><br>${formatRp(s.total)}</td>
+        <td style="text-align:right"><button class="btn-primary btn-sm" onclick='printStruk(${JSON.stringify(s)})'>Print</button></td></tr>`).join('');
+
+      let daily = {};
+      sales.forEach(s => {
+        let d = new Date(s.date).toLocaleDateString('id-ID');
+        if(!daily[d]) daily[d] = { qty: 0, laba: 0 };
+        s.items.forEach(i => {
+          daily[d].qty += i.qty;
+          daily[d].laba += (i.qty * i.price - i.discount) - (i.qty * i.buy);
+        });
+      });
+      document.getElementById('dailyReportBody').innerHTML = Object.keys(daily).map(d => `<tr><td>${d}</td><td>${daily[d].qty}</td><td style="color:var(--success)">${formatRp(daily[d].laba)}</td></tr>`).join('');
+    }
+
+    function downloadCSV() {
+      let csv = "ID,Tanggal,Total,Laba\n";
+      currentSales.forEach(s => {
+        let lb = s.items.reduce((a,i) => a + ((i.qty*i.price-i.discount)-(i.qty*i.buy)), 0);
+        csv += `${s.id},${s.date},${s.total},${lb}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = `Laporan_${document.getElementById('reportMonth').value}.csv`; a.click();
+    }
+
+    async function saveSettings() {
+      const s = { name: document.getElementById('sName').value, address: document.getElementById('sAddr').value, phone: document.getElementById('sPhone').value, paper: 32 };
+      await secureFetch('/api/settings', 'POST', s); alert("Pengaturan Disimpan"); location.reload();
+    }
+    
+    async function resetData() { if(confirm("Hapus seluruh data?")) { await secureFetch('/api/settings', 'DELETE'); location.reload(); } }
+    
+    function clearPForm() { ['pId','pName','pBuy','pSell','pStock'].forEach(i => document.getElementById(i).value = ""); document.getElementById('pSku').value = generateSKU(); document.getElementById('formTitle').innerText = "Input Produk"; }
+
+    if(token) { document.getElementById('loginBackdrop').style.display='none'; document.getElementById('app').style.display='block'; initApp(); }
+  </script>
+</body>
+</html>
