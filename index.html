@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Kasir Cloud Pro - Clean Version</title>
+  <title>Kasir Cloud Pro - Fixed Print</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <style>
     :root {
@@ -24,7 +24,6 @@
       margin: -12px -12px 12px -12px;
     }
 
-    /* Tabs - Icons Removed */
     .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; }
     .tab-btn { flex: 0 0 auto; padding: 10px 20px; border-radius: 30px; border: 1px solid rgba(148, 163, 184, 0.2); background: rgba(30, 41, 59, 0.5); color: var(--muted); font-size: 0.85rem; font-weight: 600; cursor: pointer; text-transform: uppercase; }
     .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -50,20 +49,27 @@
     .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
     .dialog { background: #1e293b; width: 100%; max-width: 400px; border-radius: 20px; padding: 24px; }
 
-    /* PRINT AREA FIX */
+    /* FIX STRUK BLANK - CSS PRINT KHUSUS */
     #printArea { display: none; }
+
     @media print {
-      body * { display: none !important; }
+      /* Sembunyikan elemen dashboard */
+      body { background: white !important; color: black !important; padding: 0; margin: 0; }
+      .app, .backdrop, .bottom-bar, header, .tabs { display: none !important; }
+      
+      /* Tampilkan area struk */
       #printArea { 
         display: block !important; 
-        color: black !important; background: white !important;
-        width: 100%; padding: 0; margin: 0;
+        width: 100% !important; 
+        background: white !important;
+        color: black !important;
+        margin: 0; padding: 0;
       }
-      .receipt-header { text-align: center; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed black; }
-      .receipt-shop-name { font-size: 16pt; font-weight: bold; display: block; margin-bottom: 2px; }
-      .receipt-info { font-size: 10pt; display: block; margin-bottom: 2px; }
-      pre { font-family: 'Courier New', monospace; font-size: 10pt; line-height: 1.2; margin: 0; white-space: pre-wrap; }
-      @page { margin: 0; }
+      .receipt-header { text-align: center; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; }
+      .receipt-shop-name { font-size: 16pt; font-weight: bold; display: block; color: black !important; }
+      .receipt-info { font-size: 10pt; display: block; color: black !important; }
+      pre { font-family: 'Courier New', monospace; font-size: 10pt; line-height: 1.2; white-space: pre-wrap; color: black !important; }
+      @page { margin: 0; size: auto; }
     }
   </style>
 </head>
@@ -123,10 +129,7 @@
         <div class="card">
           <h3 id="formTitle" style="margin-bottom:15px;">Data Produk</h3>
           <input type="hidden" id="pId">
-          <div class="field-group">
-            <label>Nama Barang</label>
-            <input id="pName" placeholder="Nama Lengkap Produk" />
-          </div>
+          <div class="field-group"><label>Nama Barang</label><input id="pName" placeholder="Nama Lengkap Produk" /></div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
             <div><label>HPP (Beli)</label><input type="number" id="pBuy" placeholder="0" /></div>
             <div><label>Harga Jual</label><input type="number" id="pSell" placeholder="0" /></div>
@@ -138,7 +141,6 @@
           <button class="btn btn-primary" onclick="saveProduct()" style="margin-top:20px;">Simpan Perubahan</button>
           <button id="btnCancelEdit" class="btn btn-secondary btn-sm" onclick="clearPForm()" style="display:none; margin-top:10px; width: 100%;">Batal Edit</button>
         </div>
-        
         <div class="table-wrapper">
           <table>
             <thead><tr><th>Produk</th><th>Stok</th><th>Opsi</th></tr></thead>
@@ -248,7 +250,6 @@
       if(t === 'laporan') renderReport();
     }
 
-    // --- KASIR ---
     function renderProductList() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       const wrapper = document.getElementById('searchResultWrapper');
@@ -303,7 +304,6 @@
       }
     }
 
-    // --- PRODUK ---
     async function saveProduct() {
       const pData = { id: document.getElementById('pId').value || "p" + Date.now(), name: document.getElementById('pName').value, buy: parseInt(document.getElementById('pBuy').value) || 0, sell: parseInt(document.getElementById('pSell').value) || 0, stock: parseInt(document.getElementById('pStock').value) || 0, sku: document.getElementById('pSku').value || "SKU" };
       if(!pData.name) return alert("Nama barang wajib!");
@@ -319,7 +319,7 @@
     }
 
     function renderAdminProducts() {
-      document.getElementById('adminProductTableBody').innerHTML = products.map(p => `<tr><td>${p.name}<br><small>${p.sku}</small></td><td>${p.stock}</td><td><button class="btn btn-primary btn-sm" style="display:inline-block" onclick="editProduct('${p.id}')">Edit</button> <button class="btn btn-danger btn-sm" style="display:inline-block" onclick="deleteProduct('${p.id}')">Hapus</button></td></tr>`).join('');
+      document.getElementById('adminProductTableBody').innerHTML = products.map(p => `<tr><td>${p.name}<br><small>${p.sku}</small></td><td>${p.stock}</td><td><button class="btn btn-primary btn-sm" onclick="editProduct('${p.id}')">E</button> <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">X</button></td></tr>`).join('');
     }
 
     function editProduct(id) {
@@ -337,7 +337,6 @@
 
     function clearPForm() { document.getElementById('pId').value = ""; ['pName','pBuy','pSell','pStock','pSku'].forEach(i => document.getElementById(i).value = ""); document.getElementById('formTitle').innerText = "Data Produk"; document.getElementById('btnCancelEdit').style.display = "none"; }
 
-    // --- LAPORAN ---
     async function renderReport() {
       const month = document.getElementById('reportMonth').value;
       const sales = await secureFetch(`/api/sales?month=${month}`);
@@ -354,10 +353,10 @@
           body.innerHTML += `<tr><td>${idx === 0 ? waktuStr : ''}</td><td>${item.name}</td><td>${item.qty}</td><td>${formatRp(item.buy)}</td><td>${formatRp(item.price)}</td><td style="color:var(--success)">${formatRp(subLaba)}</td></tr>`;
         });
       });
-      document.getElementById('reportFooter').innerHTML = `<tr><td colspan="5" style="text-align:right">TOTAL KEUNTUNGAN BULAN INI:</td><td style="color:var(--success)">${formatRp(totalLaba)}</td></tr>`;
+      document.getElementById('reportFooter').innerHTML = `<tr><td colspan="5" style="text-align:right">TOTAL KEUNTUNGAN:</td><td style="color:var(--success)">${formatRp(totalLaba)}</td></tr>`;
     }
 
-    // --- CETAK STRUK ---
+    // --- FIX PRINT LOGIC ---
     function printStruk(trx) {
       const W = parseInt(settings.paper || 32);
       const line = "-".repeat(W) + "\n";
@@ -394,8 +393,13 @@
       
       const pArea = document.getElementById('printArea');
       pArea.innerHTML = headerHtml + `<pre>${bodyText}</pre>`;
-      window.print();
-      setTimeout(() => { pArea.innerHTML = ""; }, 1000);
+      
+      // Delay kecil untuk memastikan DOM sudah siap sebelum window.print()
+      setTimeout(() => {
+        window.print();
+        // Jangan langsung hapus pArea agar browser punya waktu untuk merender print
+        setTimeout(() => { pArea.innerHTML = ""; }, 500);
+      }, 250);
     }
 
     async function saveSettings() {
