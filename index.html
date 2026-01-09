@@ -111,7 +111,7 @@
             <div class="field-group"><label>Jumlah</label><input type="number" id="qtyInput" value="1" /></div>
             <div class="field-group"><label>Disc Rp</label><input type="number" id="discInput" value="0" /></div>
           </div>
-          <div class="table-wrapper" id="searchResultWrapper" style="display:none; max-height: 250px;">
+          <div style="display: none; max-height: 250px;" id="searchResultWrapper" class="table-wrapper">
             <table><tbody id="productTableBody"></tbody></table>
           </div>
         </div>
@@ -173,6 +173,7 @@
           <div class="table-wrapper">
             <table><tbody id="reprintLogBody"></tbody></table>
           </div>
+          <div id="reprintPaginationContainer" class="pagination" style="display:none;"></div>
         </div>
       </section>
 
@@ -192,6 +193,17 @@
         <div style="flex:1;"><small>Total:</small><div id="grandTotal" style="font-weight:900; color:var(--primary); font-size:1.2rem;">Rp 0</div></div>
         <button class="btn btn-secondary btn-sm" style="width:auto;" onclick="finishTrx(false)">Simpan</button>
         <button class="btn btn-primary btn-sm" style="width:auto; padding:0 20px" onclick="finishTrx(true)">+ Struk</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Preview Struk -->
+  <div id="receiptPreviewModal" class="backdrop" style="display:none;">
+    <div class="dialog" style="max-width:95%; width:auto; background:white; color:black;">
+      <div id="receiptPreviewContent"></div>
+      <div style="margin-top:15px; display:flex; gap:10px;">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Cetak</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('receiptPreviewModal').style.display='none'">Tutup</button>
       </div>
     </div>
   </div>
@@ -310,20 +322,17 @@
       }
     }
 
-    // --- PRINT STRUK REFINED ---
+    // --- PRINT STRUK DENGAN PREVIEW DI MOBILE ---
     function printStruk(trx) {
-      const W = 32; // Lebar standar kertas thermal
+      const W = 32;
       const line = "-".repeat(W) + "\n";
-      const dash = ".".repeat(W) + "\n";
       
-      const header = `
-        <div class="receipt-header">
-          <span class="receipt-shop-name">${settings.name || 'TOKO KAMI'}</span>
-          <span class="receipt-info">${settings.address || ''}</span>
-          <span class="receipt-info">WA: ${settings.phone || '-'}</span>
-        </div>`;
-
-      let body = "No: " + trx.id.slice(-8) + "\n";
+      let body = `${settings.name || 'TOKO KAMI'}\n`;
+      if (settings.address) body += `${settings.address}\n`;
+      if (settings.phone) body += `WA: ${settings.phone}\n`;
+      body += line;
+      
+      body += "No: " + trx.id.slice(-8) + "\n";
       body += "Tgl: " + new Date(trx.date).toLocaleString('id-ID', {dateStyle:'short', timeStyle:'short'}) + "\n";
       body += line;
 
@@ -340,21 +349,11 @@
       body += `BAYAR:   ${(trx.bayar || 0).toLocaleString().padStart(W-9)}\n`;
       body += `KEMBALI: ${kembali.toLocaleString().padStart(W-9)}\n`;
       body += line;
+      body += "Terima Kasih Atas Kunjungan Anda\nBarang yang sudah dibeli tidak dapat ditukar";
 
-      const footer = `
-        <div class="footer-receipt">
-          Terima Kasih Atas Kunjungan Anda<br>
-          Barang yang sudah dibeli tidak dapat ditukar
-        </div>`;
-
-      const pArea = document.getElementById('printArea');
-      pArea.innerHTML = header + `<pre>${body}</pre>` + footer;
-      
-      // Delay sedikit untuk render CSS sebelum print
-      setTimeout(() => { 
-        window.print(); 
-        pArea.innerHTML = ""; 
-      }, 500);
+      // Tampilkan di modal
+      document.getElementById('receiptPreviewContent').innerHTML = `<pre style="font-family:'Courier New',monospace;font-size:14px;line-height:1.4;">${body}</pre>`;
+      document.getElementById('receiptPreviewModal').style.display = 'flex';
     }
 
     // --- FUNGSI ADMIN LAINNYA ---
@@ -405,32 +404,78 @@
       currentSales = sales;
       const now = new Date();
 
-      document.getElementById('reprintLogBody').innerHTML = sales.filter(s => (now - new Date(s.date))/(1000*60*60*24) <= 3).map(s => `<tr>
-        <td><small>${new Date(s.date).toLocaleDateString('id-ID')}</small><br>${formatRp(s.total)}</td>
-        <td style="text-align:right"><button class="btn-primary btn-sm" onclick='printStruk(${JSON.stringify(s)})'>Cetak</button></td></tr>`).join('');
+      // Filter transaksi 3 hari terakhir
+      const recentSales = sales.filter(s => (now - new Date(s.date)) / (1000 * 60 * 60 * 24) <= 3);
+      
+      // Pagination untuk reprint
+      const currentPage = parseInt(sessionStorage.getItem('reprintPage') || '1');
+      const totalPages = Math.ceil(recentSales.length / itemsPerPage);
+      const paginatedSales = recentSales.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+      document.getElementById('reprintLogBody').innerHTML = paginatedSales.map(s => `
+        <tr>
+          <td>
+            <small>${new Date(s.date).toLocaleDateString('id-ID')}</small><br>
+            ${formatRp(s.total)}
+          </td>
+          <td style="text-align:right">
+            <button class="btn-primary btn-sm" onclick='printStruk(${JSON.stringify(s)})'>Cetak</button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Render pagination buttons
+      let phtml = "";
+      for (let i = 1; i <= totalPages; i++) {
+        phtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changeReprintPage(${i})">${i}</button>`;
+      }
+      document.getElementById('reprintPaginationContainer').innerHTML = phtml;
+      document.getElementById('reprintPaginationContainer').style.display = totalPages > 1 ? 'block' : 'none';
+
+      // --- Rekap Harian ---
       let daily = {};
       sales.forEach(s => {
         let d = new Date(s.date).toLocaleDateString('id-ID');
-        if(!daily[d]) daily[d] = { qty: 0, laba: 0 };
+        if (!daily[d]) daily[d] = { qty: 0, laba: 0 };
         s.items.forEach(i => {
           daily[d].qty += i.qty;
           daily[d].laba += (i.qty * i.price - i.discount) - (i.qty * i.buy);
         });
       });
-      document.getElementById('dailyReportBody').innerHTML = Object.keys(daily).map(d => `<tr><td>${d}</td><td>${daily[d].qty}</td><td style="color:var(--success)">${formatRp(daily[d].laba)}</td></tr>`).join('');
+      document.getElementById('dailyReportBody').innerHTML = Object.keys(daily).map(d => `
+        <tr>
+          <td>${d}</td>
+          <td>${daily[d].qty}</td>
+          <td style="color:var(--success)">${formatRp(daily[d].laba)}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Fungsi ganti halaman reprint
+    function changeReprintPage(page) {
+      sessionStorage.setItem('reprintPage', page);
+      renderReport();
     }
 
     function downloadCSV() {
-      let csv = "ID,Tanggal,Total,Laba\n";
-      currentSales.forEach(s => {
-        let laba = s.items.reduce((a,i) => a + ((i.qty*i.price-i.discount)-(i.qty*i.buy)), 0);
-        csv += `${s.id},${s.date},${s.total},${laba}\n`;
+      let csv = "Tanggal,Jam,Nama Barang,Harga Beli,Harga Jual,Laba,Total Laba\n";
+      currentSales.forEach(sale => {
+        const saleDate = new Date(sale.date);
+        const tanggal = saleDate.toLocaleDateString('id-ID');
+        const jam = saleDate.toLocaleTimeString('id-ID', { hour12: false });
+        
+        let totalLabaSale = 0;
+        sale.items.forEach(item => {
+          const labaPerItem = (item.price - item.buy) * item.qty;
+          totalLabaSale += labaPerItem;
+          csv += `"${tanggal}","${jam}","${item.name.replace(/"/g, '""')}","${item.buy}","${item.price}","${labaPerItem}","${totalLabaSale}"\n`;
+        });
       });
-      const blob = new Blob([csv], { type: 'text/csv' });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `laporan_${document.getElementById('reportMonth').value}.csv`;
+      a.download = `detail_laporan_${document.getElementById('reportMonth').value}.csv`;
       a.click();
     }
 
