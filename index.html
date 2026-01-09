@@ -24,7 +24,6 @@
       margin: -12px -12px 12px -12px;
     }
 
-    /* Tabs Navigation - Icons Centered */
     .tabs { display: flex; gap: 12px; justify-content: center; padding: 15px 0; }
     .tab-btn { 
       width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;
@@ -71,25 +70,29 @@
     .dialog { background: #1e293b; width: 100%; max-width: 400px; border-radius: 20px; padding: 24px; }
 
     /* PRINT AREA - Hanya muncul saat print */
-    #printArea { display: none; }
+    #printArea {
+      display: none;
+    }
     @media print {
-      body * { 
-        visibility: hidden; 
+      body {
+        margin: 0;
+        padding: 0;
+        background: white !important;
       }
-      #printArea, #printArea * { 
-        visibility: visible !important; 
+      .app, .bottom-bar, .backdrop, header, .tabs, main, footer {
+        display: none !important;
       }
-      #printArea { 
-        position: absolute; 
-        left: 0; 
-        top: 0; 
-        width: 100%; 
-        padding: 15px; 
-        font-family: 'Courier New', monospace; 
-        font-size: 12pt; 
+      #printArea {
+        display: block !important;
+        width: 100%;
+        padding: 15px;
+        font-family: 'Courier New', monospace;
+        font-size: 12pt;
         line-height: 1.4;
         color: black;
         background: white !important;
+        position: relative;
+        z-index: 9999;
       }
     }
   </style>
@@ -124,8 +127,8 @@
           <label>Cari Produk</label>
           <input id="searchInput" placeholder="Nama barang..." oninput="renderProductList()" autocomplete="off" />
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-            <div class="field-group"><label>Jumlah</label><input type="number" id="qtyInput" value="1" /></div>
-            <div class="field-group"><label>Disc Rp</label><input type="number" id="discInput" value="0" /></div>
+            <div class="field-group"><label>Jumlah</label><input type="number" id="qtyInput" value="1" min="1" /></div>
+            <div class="field-group"><label>Disc Rp</label><input type="number" id="discInput" value="0" min="0" /></div>
           </div>
           <div style="display: none; max-height: 250px;" id="searchResultWrapper" class="table-wrapper">
             <table><tbody id="productTableBody"></tbody></table>
@@ -213,7 +216,7 @@
     </div>
   </div>
 
-  <!-- Print Area - Hanya untuk print -->
+  <!-- Print Area -->
   <div id="printArea"></div>
 
   <script>
@@ -289,7 +292,29 @@
       const disc = parseInt(document.getElementById('discInput').value) || 0;
       if (p.stock < qty) return alert("Stok kurang!");
       cart.push({ productId: id, name: p.name, price: p.sell, buy: p.buy, qty, discount: disc });
-      document.getElementById('searchInput').value = ""; renderProductList(); renderCart();
+      document.getElementById('searchInput').value = ""; 
+      document.getElementById('qtyInput').value = 1;
+      document.getElementById('discInput').value = 0;
+      renderProductList(); 
+      renderCart();
+    }
+
+    function editCartQty(index) {
+      const item = cart[index];
+      const newQty = prompt(`Ubah jumlah "${item.name}"`, item.qty);
+      if (newQty === null) return;
+      const qtyNum = parseInt(newQty);
+      if (isNaN(qtyNum) || qtyNum < 1) {
+        alert("Jumlah harus angka ≥ 1");
+        return;
+      }
+      const product = products.find(p => p.id === item.productId);
+      if (product && product.stock < qtyNum) {
+        alert("Stok tidak mencukupi!");
+        return;
+      }
+      cart[index].qty = qtyNum;
+      renderCart();
     }
 
     function renderCart() {
@@ -323,12 +348,14 @@
       const res = await secureFetch('/api/sales', 'POST', trx);
       if(res.success) {
         if(isPrint) printStruk(trx); else alert("Berhasil disimpan!");
-        cart = []; document.getElementById('bayarInput').value = "";
-        await loadProducts(); renderCart();
+        cart = []; 
+        document.getElementById('bayarInput').value = "";
+        await loadProducts(); 
+        renderCart();
       }
     }
 
-    // --- CETAK STRUK LANGSUNG (TANPA PREVIEW) ---
+    // --- CETAK STRUK (PERBAIKAN MOBILE) ---
     function printStruk(trx) {
       const W = 32;
       const line = "-".repeat(W) + "\n";
@@ -357,14 +384,16 @@
       content += line;
       content += "Terima Kasih Atas Kunjungan Anda\nBarang yang sudah dibeli tidak dapat ditukar";
 
-      // Isi print area
-      document.getElementById('printArea').textContent = content;
-      
-      // Tunda sedikit agar DOM siap sebelum print
+      // Isi sebagai teks biasa (lebih kompatibel)
+      const printArea = document.getElementById('printArea');
+      printArea.textContent = content;
+
+      // Tunda sebentar agar DOM update
       setTimeout(() => {
         window.print();
-        document.getElementById('printArea').textContent = '';
-      }, 200);
+        // Kosongkan setelah cetak
+        printArea.textContent = '';
+      }, 300);
     }
 
     // --- FUNGSI ADMIN LAINNYA ---
@@ -415,10 +444,7 @@
       currentSales = sales;
       const now = new Date();
 
-      // Filter transaksi 3 hari terakhir
       const recentSales = sales.filter(s => (now - new Date(s.date)) / (1000 * 60 * 60 * 24) <= 3);
-      
-      // Pagination untuk reprint
       const currentPage = parseInt(sessionStorage.getItem('reprintPage') || '1');
       const totalPages = Math.ceil(recentSales.length / itemsPerPage);
       const paginatedSales = recentSales.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -435,7 +461,6 @@
         </tr>
       `).join('');
 
-      // Render pagination buttons — gunakan class .pagination yang sudah ada
       let phtml = "";
       for (let i = 1; i <= totalPages; i++) {
         phtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changeReprintPage(${i})">${i}</button>`;
@@ -443,7 +468,6 @@
       document.getElementById('reprintPaginationContainer').innerHTML = phtml;
       document.getElementById('reprintPaginationContainer').style.display = totalPages > 0 ? 'flex' : 'none';
 
-      // --- Rekap Harian ---
       let daily = {};
       sales.forEach(s => {
         let d = new Date(s.date).toLocaleDateString('id-ID');
