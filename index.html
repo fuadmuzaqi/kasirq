@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Kasir Cloud Pro - Thermal 58mm Edition</title>
+  <title>Kasir Cloud Pro - Fixed 58mm</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <style>
     :root {
@@ -12,74 +12,49 @@
       --bg: #020617; --card-bg: rgba(15, 23, 42, 0.7);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; }
 
+    /* UI Layout */
     .app { max-width: var(--app-max); margin: 0 auto; padding: 12px; padding-bottom: 120px; }
-
-    header { 
-      position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px); 
-      background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid rgba(148, 163, 184, 0.1); 
-      padding: 16px; display: flex; align-items: center; justify-content: space-between; 
-      margin: -12px -12px 12px -12px;
-    }
-
+    header { position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px); background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid rgba(148, 163, 184, 0.1); padding: 16px; display: flex; align-items: center; justify-content: space-between; margin: -12px -12px 12px -12px; }
     .tabs { display: flex; gap: 12px; justify-content: center; padding: 15px 0; }
-    .tab-btn { 
-      width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;
-      border-radius: 50%; border: 1px solid rgba(148, 163, 184, 0.2); 
-      background: rgba(30, 41, 59, 0.5); color: var(--muted); font-size: 1.4rem; cursor: pointer; transition: 0.3s;
-    }
+    .tab-btn { width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(148, 163, 184, 0.2); background: rgba(30, 41, 59, 0.5); color: var(--muted); font-size: 1.4rem; cursor: pointer; transition: 0.3s; }
     .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
-
     .card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid rgba(148, 163, 184, 0.1); padding: 16px; margin-bottom: 16px; }
-    .field-group { margin-bottom: 12px; }
-    label { font-size: 0.7rem; color: var(--muted); display: block; margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
-    input { width: 100%; height: var(--control-minh); padding: 0 14px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; outline: none; }
-    
-    .btn { width: 100%; height: var(--control-minh); border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
-    .btn:active { transform: scale(0.98); }
+    input { width: 100%; height: var(--control-minh); padding: 0 14px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; outline: none; margin-bottom: 10px; }
+    .btn { width: 100%; height: var(--control-minh); border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-primary { background: var(--primary); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
     .btn-secondary { background: #334155; color: white; }
     .btn-sm { height: 32px; font-size: 0.7rem; padding: 0 10px; border-radius: 8px; width: auto; }
-
     .table-wrapper { overflow-x: auto; border-radius: 10px; background: rgba(2, 6, 23, 0.4); margin-top: 8px; }
     table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-    th { background: rgba(30, 41, 59, 0.8); color: white; padding: 10px; text-align: left; }
-    td { padding: 10px; border-bottom: 1px solid rgba(148, 163, 184, 0.05); }
-
-    .pagination { display: flex; gap: 5px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
-    .page-btn { min-width: 32px; height: 32px; padding: 0 8px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; cursor: pointer; font-size: 0.75rem; }
-    .page-btn.active { background: var(--primary); border-color: var(--primary); }
-
-    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px; z-index: 100; background: var(--bg); border-top: 1px solid #1e293b; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid rgba(148, 163, 184, 0.05); }
+    .pagination { display: flex; gap: 5px; justify-content: center; margin-top: 15px; }
+    .page-btn { min-width: 32px; height: 32px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; cursor: pointer; }
+    .page-btn.active { background: var(--primary); }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px; z-index: 100; background: var(--bg); border-top: 1px solid #1e293b; display: none; }
     .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
     .dialog { background: #1e293b; width: 100%; max-width: 400px; border-radius: 20px; padding: 24px; }
 
-    /* CSS KHUSUS PRINT - Dioptimalkan untuk Mobile & Thermal 58mm */
+    /* CSS KHUSUS PRINT - WAJIB MONOSPACE */
     #printArea { display: none; }
     @media print {
-      @page { margin: 0; size: 58mm auto; }
-      body { background: white !important; margin: 0; padding: 0; }
-      .app, .bottom-bar, .backdrop, header, .tabs, main { display: none !important; }
+      body * { visibility: hidden; background: white !important; }
+      #printArea, #printArea * { visibility: visible !important; }
       #printArea { 
         display: block !important; 
-        width: 54mm; /* Sedikit lebih kecil dari 58mm untuk margin fisik printer */
-        color: black !important;
-        background: white !important;
-        position: absolute;
-        top: 0; left: 0;
+        position: absolute; left: 0; top: 0; 
+        width: 48mm; /* Area cetak bersih 58mm printer */
         margin: 0; padding: 0;
       }
       pre { 
-        white-space: pre-wrap !important; 
         font-family: 'Courier New', Courier, monospace !important; 
-        font-size: 10pt; 
-        line-height: 1.2; 
+        font-size: 10pt !important; 
+        line-height: 1.2 !important; 
+        color: black !important; 
+        white-space: pre-wrap !important;
         margin: 0;
-        padding: 2mm;
-        color: black !important;
       }
     }
   </style>
@@ -89,16 +64,15 @@
   <div id="loginBackdrop" class="backdrop">
     <div class="dialog">
       <h2 style="text-align: center; margin-bottom: 20px;">Kasir Cloud</h2>
-      <input type="password" id="accessInput" placeholder="Kode Akses" style="text-align: center; margin-bottom: 15px;" />
-      <button class="btn btn-primary" onclick="handleLogin()">BUKA SISTEM</button>
-      <p id="loginMsg" style="color:var(--danger); font-size:0.75rem; margin-top:12px; text-align:center;"></p>
+      <input type="password" id="accessInput" placeholder="Kode Akses" style="text-align: center;" />
+      <button class="btn btn-primary" onclick="handleLogin()">MASUK</button>
     </div>
   </div>
 
   <div class="app" id="app" style="display:none;">
     <header>
-      <div id="shopNameHeader" style="font-weight: 800; letter-spacing: 1px;">KASIR</div>
-      <div style="font-size: 0.6rem; color: var(--success); font-weight: bold;">● ONLINE</div>
+      <div id="shopNameHeader" style="font-weight: 800;">KASIR</div>
+      <div style="font-size: 0.6rem; color: var(--success);">● ONLINE</div>
     </header>
 
     <div class="tabs">
@@ -111,95 +85,84 @@
     <main>
       <section id="secKasir">
         <div class="card">
-          <label>Cari Produk</label>
-          <input id="searchInput" placeholder="Nama barang..." oninput="renderProductList()" autocomplete="off" />
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-            <div class="field-group"><label>Jumlah</label><input type="number" id="qtyInput" value="1" min="1" /></div>
-            <div class="field-group"><label>Disc Rp</label><input type="number" id="discInput" value="0" min="0" /></div>
+          <input id="searchInput" placeholder="Cari nama barang..." oninput="renderSearch()" autocomplete="off" />
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input type="number" id="qtyInput" value="1" placeholder="Qty" />
+            <input type="number" id="discInput" value="0" placeholder="Disc Rp" />
           </div>
-          <div style="display: none; max-height: 200px;" id="searchResultWrapper" class="table-wrapper">
-            <table><tbody id="productTableBody"></tbody></table>
+          <div id="searchRes" class="table-wrapper" style="display:none; max-height: 150px;">
+            <table><tbody id="searchBody"></tbody></table>
           </div>
         </div>
         <div class="card">
-          <h4 style="margin-bottom:10px; font-size: 0.8rem; color: var(--muted);">DAFTAR BELANJA</h4>
           <div id="cartItems"></div>
-          <input type="number" id="bayarInput" oninput="calcChange()" placeholder="Bayar Tunai Rp..." style="margin-top:15px; border: 2px solid var(--primary); font-weight: bold;" />
-          <div id="changeText" style="margin-top:10px; font-weight:800; text-align:right;">Kembali: Rp 0</div>
+          <input type="number" id="bayarInput" oninput="calcChange()" placeholder="Uang Bayar..." style="margin-top:15px; border:2px solid var(--primary);" />
+          <div id="changeText" style="text-align:right; font-weight:800; margin-top:5px;">Kembali: Rp 0</div>
         </div>
       </section>
 
       <section id="secProduk" style="display:none;">
         <div class="card">
-          <h3 id="formTitle" style="margin-bottom:15px">Data Produk</h3>
+          <h3 id="formTitle">Tambah Produk</h3>
           <input type="hidden" id="pId">
-          <div class="field-group"><label>Nama Barang</label><input id="pName" /></div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-            <div><label>HPP (Beli)</label><input type="number" id="pBuy" /></div>
-            <div><label>Harga Jual</label><input type="number" id="pSell" /></div>
+          <input id="pName" placeholder="Nama Barang" />
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input type="number" id="pBuy" placeholder="HPP (Beli)" />
+            <input type="number" id="pSell" placeholder="Harga Jual" />
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div><label>Stok</label><input type="number" id="pStock" /></div>
-            <div><label>SKU</label><input id="pSku" readonly style="background: #1e293b; color: var(--muted);" /></div>
+            <input type="number" id="pStock" placeholder="Stok" />
+            <input id="pSku" readonly style="opacity: 0.6;" />
           </div>
-          <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="btn btn-primary" onclick="saveProduct()">SIMPAN</button>
-            <button class="btn btn-secondary" onclick="clearPForm()">BATAL</button>
-          </div>
+          <button class="btn btn-primary" onclick="saveProduct()">SIMPAN</button>
         </div>
         <div class="card">
-          <input id="adminSearchInput" placeholder="Cari stok..." oninput="renderAdminProducts(1)" style="margin-bottom: 10px;" />
+          <input id="adminSearch" placeholder="Filter stok..." oninput="renderAdmin(1)" />
           <div class="table-wrapper">
             <table>
-              <thead><tr><th>Produk (A-Z)</th><th>Stok</th><th>Aksi</th></tr></thead>
-              <tbody id="adminProductTableBody"></tbody>
+              <thead><tr><th>Produk</th><th>Stok</th><th>Aksi</th></tr></thead>
+              <tbody id="adminBody"></tbody>
             </table>
           </div>
-          <div id="adminPagination" class="pagination"></div>
+          <div id="adminPage" class="pagination"></div>
         </div>
       </section>
 
       <section id="secLaporan" style="display:none;">
         <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <input type="month" id="reportMonth" onchange="renderReport()" style="width:70%" />
-            <button class="btn btn-secondary btn-sm" onclick="downloadCSV()">CSV</button>
-          </div>
+          <input type="month" id="repMonth" onchange="renderReport()" />
+          <button class="btn btn-secondary btn-sm" onclick="downloadCSV()">Download CSV</button>
         </div>
         <div class="card">
-          <h4 style="color:var(--primary); margin-bottom:10px; font-size: 0.8rem;">CETAK ULANG (3 HARI TERAKHIR)</h4>
+          <h4 style="font-size:0.7rem; color:var(--primary); margin-bottom:10px;">REPRINT (3 HARI TERAKHIR)</h4>
           <div class="table-wrapper">
-            <table><tbody id="reprintLogBody"></tbody></table>
+            <table><tbody id="reprintBody"></tbody></table>
           </div>
-          <div id="reprintPagination" class="pagination"></div>
+          <div id="reprintPage" class="pagination"></div>
         </div>
         <div class="card">
-          <h4 style="color:var(--success); margin-bottom:10px; font-size: 0.8rem;">REKAP HARIAN</h4>
+          <h4 style="font-size:0.7rem; color:var(--success); margin-bottom:10px;">LABA HARIAN</h4>
           <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Tanggal</th><th>Item</th><th>Laba</th></tr></thead>
-              <tbody id="dailyReportBody"></tbody>
-            </table>
+            <table><tbody id="dailyBody"></tbody></table>
           </div>
         </div>
       </section>
 
       <section id="secSetting" style="display:none;">
         <div class="card">
-          <div class="field-group"><label>Nama Toko</label><input id="sName" /></div>
-          <div class="field-group"><label>Alamat</label><input id="sAddr" /></div>
-          <div class="field-group"><label>No HP</label><input id="sPhone" /></div>
-          <button class="btn btn-primary" onclick="saveSettings()">SIMPAN</button>
+          <input id="sName" placeholder="Nama Toko" />
+          <input id="sAddr" placeholder="Alamat" />
+          <input id="sPhone" placeholder="No HP/WA" />
+          <button class="btn btn-primary" onclick="saveSettings()">SIMPAN PENGATURAN</button>
         </div>
-        <div class="card"><button class="btn btn-danger btn-sm" onclick="resetData()" style="width:100%">RESET DATA</button></div>
       </section>
     </main>
 
     <div class="bottom-bar" id="bottomBar">
-      <div class="bottom-inner" style="display:flex; gap:10px; max-width:500px; margin:0 auto; align-items: center;">
-        <div style="flex:1;"><small style="font-size: 0.6rem; color: var(--muted);">TOTAL</small><div id="grandTotal" style="font-weight:900; color:var(--primary); font-size:1.3rem;">Rp 0</div></div>
-        <button class="btn btn-secondary btn-sm" onclick="finishTrx(false)">SIMPAN</button>
-        <button class="btn btn-primary btn-sm" style="padding: 0 20px" onclick="finishTrx(true)">+ STRUK</button>
+      <div style="display:flex; gap:10px; align-items:center; max-width:500px; margin:0 auto;">
+        <div style="flex:1;"><small>TOTAL</small><div id="gTotal" style="font-weight:900; color:var(--primary); font-size:1.2rem;">Rp 0</div></div>
+        <button class="btn btn-secondary btn-sm" onclick="finish(false)">SIMPAN</button>
+        <button class="btn btn-primary btn-sm" onclick="finish(true)">+ STRUK</button>
       </div>
     </div>
   </div>
@@ -207,21 +170,17 @@
   <div id="printArea"></div>
 
   <script>
-    let products = [];
-    let settings = {};
-    let cart = [];
-    let currentSales = [];
-    let token = sessionStorage.getItem('kasir_token');
-    const itemsPerPage = 10;
-    let reprintCurrentPage = 1;
+    let products = [], settings = {}, cart = [], currentSales = [];
+    let token = sessionStorage.getItem('k_token');
+    const W = 32; // Lebar Karakter Printer 58mm
 
     const formatRp = (v) => "Rp " + (v || 0).toLocaleString('id-ID');
-    const generateSKU = () => "BRG-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+    const genSKU = () => "BRG-" + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-    async function secureFetch(url, method = 'GET', body = null) {
-      const options = { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
-      if (body) options.body = JSON.stringify(body);
-      const res = await fetch(url, options);
+    async function req(url, method = 'GET', body = null) {
+      const opt = { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
+      if (body) opt.body = JSON.stringify(body);
+      const res = await fetch(url, opt);
       if (res.status === 401) location.reload();
       return res.json();
     }
@@ -230,28 +189,20 @@
       const code = document.getElementById('accessInput').value;
       const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ accessCode: code }) });
       const data = await res.json();
-      if (data.success) {
-        token = data.token; sessionStorage.setItem('kasir_token', token);
-        document.getElementById('loginBackdrop').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        initApp();
-      } else { document.getElementById('loginMsg').innerText = "Kode Salah!"; }
+      if (data.success) { token = data.token; sessionStorage.setItem('k_token', token); location.reload(); }
+      else alert("Kode Salah");
     }
 
-    async function initApp() {
-      settings = await secureFetch('/api/settings');
+    async function init() {
+      settings = await req('/api/settings');
       document.getElementById('shopNameHeader').innerText = settings.name || "KASIR";
       document.getElementById('sName').value = settings.name || "";
       document.getElementById('sAddr').value = settings.address || "";
       document.getElementById('sPhone').value = settings.phone || "";
-      document.getElementById('reportMonth').value = new Date().toISOString().slice(0, 7);
-      document.getElementById('pSku').value = generateSKU();
-      await loadProducts();
-    }
-
-    async function loadProducts() {
-      products = await secureFetch('/api/products');
-      renderAdminProducts(1);
+      document.getElementById('pSku').value = genSKU();
+      document.getElementById('repMonth').value = new Date().toISOString().slice(0, 7);
+      products = await req('/api/products');
+      renderAdmin(1);
     }
 
     function showTab(t) {
@@ -259,106 +210,97 @@
       ['tabKasir', 'tabProduk', 'tabLaporan', 'tabSetting'].forEach(b => document.getElementById(b).classList.remove('active'));
       document.getElementById('sec' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = 'block';
       document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('active');
-      document.getElementById('bottomBar').style.display = (t === 'kasir') ? 'flex' : 'none';
-      if(t === 'laporan') { reprintCurrentPage = 1; renderReport(); }
+      document.getElementById('bottomBar').style.display = (t === 'kasir') ? 'block' : 'none';
+      if(t === 'laporan') renderReport();
     }
 
-    function renderProductList() {
+    // --- KASIR ---
+    function renderSearch() {
       const q = document.getElementById('searchInput').value.toLowerCase();
-      const wrapper = document.getElementById('searchResultWrapper');
-      const body = document.getElementById('productTableBody');
-      if (!q) { wrapper.style.display = 'none'; return; }
+      const resDiv = document.getElementById('searchRes');
+      if (!q) { resDiv.style.display = 'none'; return; }
       const filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
-      wrapper.style.display = 'block';
-      body.innerHTML = filtered.slice(0, 5).map(p => `<tr onclick="addToCart('${p.id}')" style="cursor:pointer"><td>${p.name}<br><small>${p.sku}</small></td><td align="right">${formatRp(p.sell)}</td></tr>`).join('');
+      resDiv.style.display = 'block';
+      document.getElementById('searchBody').innerHTML = filtered.slice(0, 5).map(p => `<tr onclick="addCart('${p.id}')"><td>${p.name}</td><td align="right">${p.sell.toLocaleString()}</td></tr>`).join('');
     }
 
-    function addToCart(id) {
+    function addCart(id) {
       const p = products.find(x => x.id === id);
       const qty = parseInt(document.getElementById('qtyInput').value) || 1;
       const disc = parseInt(document.getElementById('discInput').value) || 0;
       if (p.stock < qty) return alert("Stok kurang!");
-      cart.push({ productId: id, name: p.name, price: p.sell, buy: p.buy, qty, discount: disc });
-      document.getElementById('searchInput').value = ""; renderProductList(); renderCart();
+      cart.push({ productId: id, name: p.name, price: p.sell, buy: p.buy, qty, disc });
+      document.getElementById('searchInput').value = ""; renderSearch(); renderCart();
     }
 
     function renderCart() {
       let total = 0;
       document.getElementById('cartItems').innerHTML = cart.map((item, idx) => {
-        let sub = (item.qty * item.price) - item.discount;
+        let sub = (item.qty * item.price) - item.disc;
         total += sub;
         return `<div style="display:flex; justify-content:space-between; font-size:0.8rem; border-bottom:1px solid #334155; padding:8px 0;">
-          <span onclick="editCartQty(${idx})" style="cursor:pointer"><b>${item.name}</b><br><small>${item.qty} x ${item.price.toLocaleString()}</small></span>
-          <span align="right">${sub.toLocaleString()} <br><b onclick="cart.splice(${idx},1);renderCart()" style="color:red; cursor:pointer">X</b></span>
+          <span onclick="editQty(${idx})" style="cursor:pointer"><b>${item.name}</b><br><small>${item.qty} x ${item.price.toLocaleString()}</small></span>
+          <span align="right">${sub.toLocaleString()} <b onclick="cart.splice(${idx},1);renderCart()" style="color:red; margin-left:10px;">X</b></span>
         </div>`;
       }).join('');
-      document.getElementById('grandTotal').innerText = formatRp(total);
+      document.getElementById('gTotal').innerText = formatRp(total);
       calcChange();
     }
 
-    function editCartQty(idx) {
-      const n = prompt("Ganti Jumlah:", cart[idx].qty);
-      if(n !== null && n > 0) {
-        const p = products.find(x => x.id === cart[idx].productId);
-        if(p.stock < parseInt(n)) return alert("Stok kurang!");
-        cart[idx].qty = parseInt(n); renderCart();
-      }
+    function editQty(i) {
+      const n = prompt("Ubah Jumlah:", cart[i].qty);
+      if(n > 0) { cart[i].qty = parseInt(n); renderCart(); }
     }
 
     function calcChange() {
-      const total = cart.reduce((a, b) => a + (b.qty * b.price - b.discount), 0);
+      const total = cart.reduce((a, b) => a + (b.qty * b.price - b.disc), 0);
       const bayar = parseInt(document.getElementById('bayarInput').value) || 0;
       document.getElementById('changeText').innerText = "Kembali: " + formatRp(bayar - total);
     }
 
-    async function finishTrx(isPrint) {
+    async function finish(isPrint) {
       if(!cart.length) return;
-      const total = cart.reduce((a, b) => a + (b.qty * b.price - b.discount), 0);
+      const total = cart.reduce((a, b) => a + (b.qty * b.price - b.disc), 0);
       const bayar = parseInt(document.getElementById('bayarInput').value) || 0;
-      if(isPrint && bayar < total) return alert("Uang Kurang!");
+      if(isPrint && bayar < total) return alert("Uang kurang!");
       const trx = { id: "INV" + Date.now().toString().slice(-6), date: new Date().toISOString(), total, bayar, items: [...cart] };
-      const res = await secureFetch('/api/sales', 'POST', trx);
+      const res = await req('/api/sales', 'POST', trx);
       if(res.success) {
-        if(isPrint) printStruk(trx); else alert("Simpan Berhasil!");
+        if(isPrint) printTrx(trx); else alert("Tersimpan!");
         cart = []; document.getElementById('bayarInput').value = "";
-        await loadProducts(); renderCart();
+        products = await req('/api/products'); renderCart();
       }
     }
 
-    // --- LOGIKA CETAK 58MM (32 Karakter) ---
-    function printStruk(trx) {
-      const W = 32; 
+    // --- LOGIKA STRUK 58mm (ANTIKAN) ---
+    function printTrx(trx) {
       const center = (s) => {
-        const space = Math.max(0, Math.floor((W - s.length) / 2));
-        return " ".repeat(space) + s;
+        s = String(s).substring(0, W);
+        return " ".repeat(Math.floor((W - s.length) / 2)) + s;
       };
       const justify = (l, r) => {
-        const space = Math.max(1, W - String(l).length - String(r).length);
-        return l + " ".repeat(space) + r;
-      };
-      // Fungsi Wrap Text untuk Nama Barang Panjang
-      const wrapText = (text) => {
-        let lines = [];
-        for (let i = 0; i < text.length; i += W) {
-          lines.push(text.substring(i, i + W));
-        }
-        return lines;
+        l = String(l); r = String(r);
+        const space = W - l.length - r.length;
+        return l + " ".repeat(Math.max(1, space)) + r;
       };
 
-      let res = "";
-      res += center(settings.name || "TOKO") + "\n";
-      if(settings.address) res += center(settings.address) + "\n";
-      if(settings.phone) res += center("HP: " + settings.phone) + "\n";
+      let res = "\n" + center(settings.name || "TOKO") + "\n";
+      res += center(settings.address || "") + "\n";
+      res += center("WA: " + (settings.phone || "")) + "\n";
       res += "-".repeat(W) + "\n";
       res += justify("INV: " + trx.id, new Date(trx.date).toLocaleDateString('id-ID')) + "\n";
       res += "-".repeat(W) + "\n";
 
       trx.items.forEach(i => {
-        const sub = (i.qty * i.price - i.discount);
-        const nameLines = wrapText(i.name);
-        nameLines.forEach(line => res += line + "\n");
+        const sub = (i.qty * i.price - i.disc);
+        // Nama barang bisa 1 atau 2 baris
+        if(i.name.length > W) {
+          res += i.name.substring(0, W) + "\n" + i.name.substring(W, W*2) + "\n";
+        } else {
+          res += i.name + "\n";
+        }
         res += justify(` ${i.qty} x ${i.price.toLocaleString()}`, sub.toLocaleString()) + "\n";
-        if(i.discount > 0) res += justify("  Disc", "-" + i.discount.toLocaleString()) + "\n";
+        if(i.disc > 0) res += justify("  (Disc)", "-" + i.disc.toLocaleString()) + "\n";
       });
 
       res += "-".repeat(W) + "\n";
@@ -366,128 +308,66 @@
       res += justify("BAYAR", (trx.bayar || 0).toLocaleString()) + "\n";
       res += justify("KEMBALI", ((trx.bayar || 0) - trx.total).toLocaleString()) + "\n";
       res += "-".repeat(W) + "\n";
-      res += "\n" + center("TERIMA KASIH") + "\n\n\n\n\n";
+      res += center("TERIMA KASIH") + "\n\n\n\n\n";
 
-      const pArea = document.getElementById('printArea');
-      pArea.innerHTML = `<pre>${res}</pre>`;
+      const area = document.getElementById('printArea');
+      area.innerHTML = `<pre>${res}</pre>`;
 
-      // Delay rendering agar mobile browser menangkap konten sebelum dialog print muncul
+      // Delay 800ms untuk browser mobile
       setTimeout(() => {
         window.print();
-        // Kosongkan area setelah 1 detik agar tidak mengganggu UI utama
-        setTimeout(() => { pArea.innerHTML = ""; }, 1000);
-      }, 700);
+        setTimeout(() => area.innerHTML = "", 1000);
+      }, 800);
     }
 
+    // --- ADMIN & LAPORAN ---
     async function saveProduct() {
       const p = { id: document.getElementById('pId').value || "p"+Date.now(), name: document.getElementById('pName').value, buy: parseInt(document.getElementById('pBuy').value), sell: parseInt(document.getElementById('pSell').value), stock: parseInt(document.getElementById('pStock').value), sku: document.getElementById('pSku').value };
-      if(!p.name) return alert("Nama wajib!");
-      await secureFetch('/api/products', 'POST', p);
-      clearPForm(); await loadProducts();
+      if(!p.name) return alert("Isi nama!");
+      await req('/api/products', 'POST', p); clearPForm(); init();
     }
 
-    function renderAdminProducts(page) {
-      const q = document.getElementById('adminSearchInput').value.toLowerCase();
-      const filtered = products.filter(x => x.name.toLowerCase().includes(q) || x.sku.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
-      const totalPages = Math.ceil(filtered.length / itemsPerPage);
-      const start = (page - 1) * itemsPerPage;
+    function renderAdmin(page) {
+      const q = document.getElementById('adminSearch').value.toLowerCase();
+      const filtered = products.filter(x => x.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+      const start = (page-1)*10;
+      document.getElementById('adminBody').innerHTML = filtered.slice(start, start+10).map(p => `<tr><td>${p.name}<br><small>${p.sku}</small></td><td>${p.stock}</td><td><button class="btn-primary btn-sm" onclick="editP('${p.id}')">E</button></td></tr>`).join('');
       
-      document.getElementById('adminProductTableBody').innerHTML = filtered.slice(start, start + itemsPerPage).map(x => `<tr>
-        <td><b>${x.name}</b><br><small>${x.sku}</small></td>
-        <td>${x.stock}</td>
-        <td><button class="btn-primary btn-sm" onclick="editProduct('${x.id}')">E</button> <button class="btn-danger btn-sm" onclick="deleteProduct('${x.id}')">X</button></td>
-      </tr>`).join('');
-
       let phtml = "";
-      for(let i=1; i<=totalPages; i++) {
-        phtml += `<button class="page-btn ${i===page?'active':''}" onclick="renderAdminProducts(${i})">${i}</button>`;
-      }
-      document.getElementById('adminPagination').innerHTML = phtml;
+      for(let i=1; i<=Math.ceil(filtered.length/10); i++) phtml += `<button class="page-btn ${i===page?'active':''}" onclick="renderAdmin(${i})">${i}</button>`;
+      document.getElementById('adminPage').innerHTML = phtml;
     }
 
-    function editProduct(id) {
-      const x = products.find(p => p.id === id);
-      document.getElementById('pId').value = x.id; document.getElementById('pName').value = x.name;
-      document.getElementById('pBuy').value = x.buy; document.getElementById('pSell').value = x.sell;
-      document.getElementById('pStock').value = x.stock; document.getElementById('pSku').value = x.sku;
-      document.getElementById('formTitle').innerText = "Edit Barang";
-      window.scrollTo(0,0);
+    function editP(id) {
+      const p = products.find(x => x.id === id);
+      document.getElementById('pId').value = p.id; document.getElementById('pName').value = p.name;
+      document.getElementById('pBuy').value = p.buy; document.getElementById('pSell').value = p.sell;
+      document.getElementById('pStock').value = p.stock; document.getElementById('pSku').value = p.sku;
+      document.getElementById('formTitle').innerText = "Edit Produk"; window.scrollTo(0,0);
     }
 
-    async function deleteProduct(id) {
-      if(confirm("Hapus barang?")) {
-        await secureFetch(`/api/products?id=${id}`, 'DELETE');
-        await loadProducts();
-      }
-    }
-
-    function clearPForm() { 
-      ['pId','pName','pBuy','pSell','pStock'].forEach(id => document.getElementById(id).value = ""); 
-      document.getElementById('pSku').value = generateSKU();
-      document.getElementById('formTitle').innerText = "Data Produk";
-    }
+    function clearPForm() { ['pId','pName','pBuy','pSell','pStock'].forEach(i => document.getElementById(i).value=""); document.getElementById('pSku').value = genSKU(); }
 
     async function renderReport() {
-      const sales = await secureFetch(`/api/sales?month=${document.getElementById('reportMonth').value}`);
+      const m = document.getElementById('repMonth').value;
+      const sales = await req(`/api/sales?month=${m}`);
       currentSales = sales;
-      const recent = sales.filter(s => (new Date() - new Date(s.date)) / 86400000 <= 3).sort((a,b) => new Date(b.date)-new Date(a.date));
+      const recent = sales.filter(s => (new Date() - new Date(s.date)) / 86400000 <= 3).sort((a,b)=>new Date(b.date)-new Date(a.date));
       
-      const totalPages = Math.ceil(recent.length / itemsPerPage);
-      const start = (reprintCurrentPage - 1) * itemsPerPage;
+      document.getElementById('reprintBody').innerHTML = recent.slice(0,10).map(s => `<tr><td>${new Date(s.date).toLocaleDateString('id-ID')}<br>${s.total.toLocaleString()}</td><td align="right"><button class="btn-primary btn-sm" onclick='printTrx(${JSON.stringify(s)})'>CETAK</button></td></tr>`).join('');
       
-      document.getElementById('reprintLogBody').innerHTML = recent.slice(start, start + itemsPerPage).map(s => `<tr>
-        <td><small>${new Date(s.date).toLocaleDateString('id-ID')}</small><br><b>${formatRp(s.total)}</b></td>
-        <td align="right"><button class="btn-primary btn-sm" onclick='printStruk(${JSON.stringify(s)})'>CETAK</button></td>
-      </tr>`).join('');
-
-      let phtml = "";
-      for(let i=1; i<=totalPages; i++) {
-        phtml += `<button class="page-btn ${i===reprintCurrentPage?'active':''}" onclick="reprintPageGo(${i})">${i}</button>`;
-      }
-      document.getElementById('reprintPagination').innerHTML = phtml;
-
       let daily = {};
       sales.forEach(s => {
         let d = new Date(s.date).toLocaleDateString('id-ID');
         if(!daily[d]) daily[d] = { qty:0, laba:0 };
-        s.items.forEach(i => {
-          daily[d].qty += i.qty;
-          daily[d].laba += (i.qty * i.price - i.discount) - (i.qty * i.buy);
-        });
+        s.items.forEach(i => { daily[d].qty += i.qty; daily[d].laba += (i.qty * i.price - i.disc) - (i.qty * i.buy); });
       });
-      document.getElementById('dailyReportBody').innerHTML = Object.keys(daily).map(d => `<tr><td>${d}</td><td>${daily[d].qty}</td><td style="color:var(--success)">${formatRp(daily[d].laba)}</td></tr>`).join('');
+      document.getElementById('dailyBody').innerHTML = Object.keys(daily).map(d => `<tr><td>${d}</td><td align="right">${daily[d].laba.toLocaleString()}</td></tr>`).join('');
     }
 
-    function reprintPageGo(p) { reprintCurrentPage = p; renderReport(); }
+    async function saveSettings() { await req('/api/settings', 'POST', { name: document.getElementById('sName').value, address: document.getElementById('sAddr').value, phone: document.getElementById('sPhone').value }); alert("OK"); location.reload(); }
 
-    function downloadCSV() {
-      let csv = "Tanggal,Nama Barang,Qty,Beli,Jual,Diskon,Laba\n";
-      currentSales.forEach(s => {
-        const d = new Date(s.date).toLocaleDateString('id-ID');
-        s.items.forEach(i => {
-          csv += `${d},${i.name},${i.qty},${i.buy},${i.price},${i.discount},${(i.qty*i.price-i.discount)-(i.qty*i.buy)}\n`;
-        });
-      });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `Laporan_Kasir.csv`;
-      a.click();
-    }
-
-    async function saveSettings() {
-      await secureFetch('/api/settings', 'POST', { name: document.getElementById('sName').value, address: document.getElementById('sAddr').value, phone: document.getElementById('sPhone').value });
-      alert("Tersimpan"); location.reload();
-    }
-
-    async function resetData() {
-      if(confirm("Hapus semua data di Cloud?")) {
-        await secureFetch('/api/settings', 'DELETE');
-        location.reload();
-      }
-    }
-
-    if(token) { document.getElementById('loginBackdrop').style.display='none'; document.getElementById('app').style.display='block'; initApp(); }
+    if(token) { document.getElementById('loginBackdrop').style.display='none'; document.getElementById('app').style.display='block'; init(); }
   </script>
 </body>
 </html>
