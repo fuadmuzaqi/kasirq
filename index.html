@@ -56,21 +56,12 @@
     .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
     .dialog { background: #1e293b; width: 100%; max-width: 400px; border-radius: 20px; padding: 24px; }
 
-    /* --- PERBAIKAN PRINT AREA --- */
     #printArea { display: none; }
-
     @media print {
       @page { margin: 0; size: auto; }
       body { background: white !important; color: black !important; margin: 0; padding: 0; }
       .app, .bottom-bar, .backdrop, header, .tabs, .card, .btn { display: none !important; }
-      #printArea { 
-        display: block !important; 
-        width: 100%; 
-        padding: 10px; 
-        font-family: 'Courier New', monospace; 
-        font-size: 10pt; 
-        line-height: 1.2;
-      }
+      #printArea { display: block !important; width: 100%; padding: 10px; font-family: 'Courier New', monospace; font-size: 10pt; line-height: 1.2; }
       pre { white-space: pre-wrap; word-wrap: break-word; font-family: 'Courier New', monospace; }
     }
   </style>
@@ -170,7 +161,7 @@
           <div class="table-wrapper">
             <table><tbody id="reprintLogBody"></tbody></table>
           </div>
-          <div id="reprintPaginationContainer" class="pagination"></div>
+          <div id="reprintPagination" class="pagination"></div>
         </div>
       </section>
 
@@ -203,6 +194,7 @@
     let currentSales = [];
     let token = sessionStorage.getItem('kasir_token');
     const itemsPerPage = 10;
+    let reprintCurrentPage = 1; // Untuk paginasi cetak ulang
 
     const formatRp = (v) => "Rp " + (v || 0).toLocaleString('id-ID');
     const generateSKU = () => "BRG-" + Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -249,7 +241,7 @@
       document.getElementById('sec' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = 'block';
       document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('active');
       document.getElementById('bottomBar').style.display = (t === 'kasir') ? 'flex' : 'none';
-      if(t === 'laporan') renderReport();
+      if(t === 'laporan') { reprintCurrentPage = 1; renderReport(); }
     }
 
     // --- KASIR LOGIC ---
@@ -269,22 +261,7 @@
       const disc = parseInt(document.getElementById('discInput').value) || 0;
       if (p.stock < qty) return alert("Stok kurang!");
       cart.push({ productId: id, name: p.name, price: p.sell, buy: p.buy, qty, discount: disc });
-      document.getElementById('searchInput').value = ""; 
-      document.getElementById('qtyInput').value = 1;
-      document.getElementById('discInput').value = 0;
-      renderProductList(); renderCart();
-    }
-
-    function editCartQty(index) {
-      const item = cart[index];
-      const newQty = prompt(`Ubah jumlah "${item.name}"`, item.qty);
-      if (newQty === null) return;
-      const qtyNum = parseInt(newQty);
-      if (isNaN(qtyNum) || qtyNum < 1) return alert("Minimal 1");
-      const product = products.find(p => p.id === item.productId);
-      if (product && product.stock < qtyNum) return alert("Stok kurang!");
-      cart[index].qty = qtyNum;
-      renderCart();
+      document.getElementById('searchInput').value = ""; renderProductList(); renderCart();
     }
 
     function renderCart() {
@@ -300,6 +277,15 @@
       }).join('');
       document.getElementById('grandTotal').innerText = formatRp(total);
       calcChange();
+    }
+
+    function editCartQty(idx) {
+      const n = prompt("Ganti Qty:", cart[idx].qty);
+      if(n !== null && n > 0) {
+        const p = products.find(x => x.id === cart[idx].productId);
+        if(p.stock < parseInt(n)) return alert("Stok tidak cukup!");
+        cart[idx].qty = parseInt(n); renderCart();
+      }
     }
 
     function calcChange() {
@@ -323,21 +309,18 @@
       }
     }
 
-    // --- FIX PRINT STRUK MOBILE ---
+    // --- STRUK FIX (FOOTER CENTERED) ---
     function printStruk(trx) {
       const W = 32; 
       const pad = (s, n) => s.toString().padEnd(n, ' ');
       const padR = (s, n) => s.toString().padStart(n, ' ');
+      const center = (s) => " ".repeat(Math.max(0, Math.floor((W - s.length) / 2))) + s;
       const line = "-".repeat(W) + "\n";
 
       let res = "";
-      // Header Tengah
-      const name = settings.name || "KASIR CLOUD";
-      res += " ".repeat(Math.max(0, Math.floor((W - name.length) / 2))) + name + "\n";
-      const addr = settings.address || "";
-      if(addr) res += " ".repeat(Math.max(0, Math.floor((W - addr.length) / 2))) + addr + "\n";
-      const phone = settings.phone || "";
-      if(phone) res += " ".repeat(Math.max(0, Math.floor((W - ("WA: "+phone).length) / 2))) + "WA: " + phone + "\n";
+      res += center(settings.name || "TOKO") + "\n";
+      if(settings.address) res += center(settings.address) + "\n";
+      if(settings.phone) res += center("WA: " + settings.phone) + "\n";
       
       res += line;
       res += "ID : " + trx.id.slice(-8) + "\n";
@@ -348,7 +331,6 @@
         const sub = (i.qty * i.price - i.discount);
         res += i.name.substring(0, W) + "\n";
         res += pad(`${i.qty} x ${i.price.toLocaleString()}`, 15) + padR(sub.toLocaleString(), W - 15) + "\n";
-        if(i.discount > 0) res += pad(" Disc", 15) + padR("-" + i.discount.toLocaleString(), W - 15) + "\n";
       });
 
       res += line;
@@ -356,20 +338,60 @@
       res += pad("BAYAR", 15) + padR((trx.bayar || 0).toLocaleString(), W - 15) + "\n";
       res += pad("KEMBALI", 15) + padR(((trx.bayar || 0) - trx.total).toLocaleString(), W - 15) + "\n";
       res += line;
-      res += "\n    TERIMA KASIH    \n\n\n\n";
+      // FOOTER CENTERED
+      res += "\n" + center("TERIMA KASIH") + "\n\n\n\n";
 
       const pArea = document.getElementById('printArea');
       pArea.innerHTML = `<pre>${res}</pre>`;
-
-      // Delay 500ms untuk memastikan browser mobile sudah merender teks ke printArea
-      setTimeout(() => {
-        window.print();
-        // Bersihkan area setelah print dialog tertutup
-        setTimeout(() => { pArea.innerHTML = ""; }, 1000);
-      }, 500);
+      setTimeout(() => { window.print(); pArea.innerHTML = ""; }, 500);
     }
 
-    // --- ADMIN & LAPORAN ---
+    // --- LAPORAN & CETAK ULANG PAGINASI ---
+    async function renderReport() {
+      const month = document.getElementById('reportMonth').value;
+      const sales = await secureFetch(`/api/sales?month=${month}`);
+      currentSales = sales;
+      const now = new Date();
+
+      // Filter 3 Hari Terakhir
+      const recentSales = sales.filter(s => (now - new Date(s.date)) / (1000 * 60 * 60 * 24) <= 3)
+                               .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+      // Paginasi Cetak Ulang
+      const totalReprintPages = Math.ceil(recentSales.length / itemsPerPage);
+      const start = (reprintCurrentPage - 1) * itemsPerPage;
+      const paginatedReprint = recentSales.slice(start, start + itemsPerPage);
+
+      document.getElementById('reprintLogBody').innerHTML = paginatedReprint.map(s => `<tr>
+        <td><small>${new Date(s.date).toLocaleDateString('id-ID')}</small><br>${formatRp(s.total)}</td>
+        <td style="text-align:right"><button class="btn-primary btn-sm" onclick='printStruk(${JSON.stringify(s)})'>Cetak</button></td></tr>`).join('');
+
+      // Render Nomor Paginasi
+      let phtml = "";
+      for(let i=1; i<=totalReprintPages; i++) {
+        phtml += `<button class="page-btn ${i===reprintCurrentPage?'active':''}" onclick="reprintGoToPage(${i})">${i}</button>`;
+      }
+      document.getElementById('reprintPagination').innerHTML = phtml;
+
+      // Laba Harian
+      let daily = {};
+      sales.forEach(s => {
+        let d = new Date(s.date).toLocaleDateString('id-ID');
+        if (!daily[d]) daily[d] = { qty: 0, laba: 0 };
+        s.items.forEach(i => {
+          daily[d].qty += i.qty;
+          daily[d].laba += (i.qty * i.price - i.discount) - (i.qty * i.buy);
+        });
+      });
+      document.getElementById('dailyReportBody').innerHTML = Object.keys(daily).map(d => `<tr><td>${d}</td><td>${daily[d].qty}</td><td style="color:var(--success)">${formatRp(daily[d].laba)}</td></tr>`).join('');
+    }
+
+    function reprintGoToPage(p) {
+      reprintCurrentPage = p;
+      renderReport();
+    }
+
+    // --- PRODUK & ADMIN ---
     async function saveProduct() {
       const p = { id: document.getElementById('pId').value || "p" + Date.now(), name: document.getElementById('pName').value, buy: parseInt(document.getElementById('pBuy').value), sell: parseInt(document.getElementById('pSell').value), stock: parseInt(document.getElementById('pStock').value), sku: document.getElementById('pSku').value };
       if(!p.name) return alert("Nama wajib!");
@@ -411,31 +433,6 @@
       document.getElementById('formTitle').innerText = "Data Produk";
     }
 
-    async function renderReport() {
-      const month = document.getElementById('reportMonth').value;
-      const sales = await secureFetch(`/api/sales?month=${month}`);
-      currentSales = sales;
-      const now = new Date();
-
-      // Reprint 3 Hari
-      const recentSales = sales.filter(s => (now - new Date(s.date)) / (1000 * 60 * 60 * 24) <= 3);
-      document.getElementById('reprintLogBody').innerHTML = recentSales.map(s => `<tr>
-        <td><small>${new Date(s.date).toLocaleDateString('id-ID')}</small><br>${formatRp(s.total)}</td>
-        <td style="text-align:right"><button class="btn-primary btn-sm" onclick='printStruk(${JSON.stringify(s)})'>Cetak</button></td></tr>`).join('');
-
-      // Laba Harian
-      let daily = {};
-      sales.forEach(s => {
-        let d = new Date(s.date).toLocaleDateString('id-ID');
-        if (!daily[d]) daily[d] = { qty: 0, laba: 0 };
-        s.items.forEach(i => {
-          daily[d].qty += i.qty;
-          daily[d].laba += (i.qty * i.price - i.discount) - (i.qty * i.buy);
-        });
-      });
-      document.getElementById('dailyReportBody').innerHTML = Object.keys(daily).map(d => `<tr><td>${d}</td><td>${daily[d].qty}</td><td style="color:var(--success)">${formatRp(daily[d].laba)}</td></tr>`).join('');
-    }
-
     function downloadCSV() {
       let csv = "Tanggal,Jam,Nama Barang,Qty,Harga Beli,Harga Jual,Laba\n";
       currentSales.forEach(sale => {
@@ -448,7 +445,7 @@
       const blob = new Blob([csv], { type: 'text/csv' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `Laporan_${document.getElementById('reportMonth').value}.csv`;
+      a.download = `Laporan.csv`;
       a.click();
     }
 
