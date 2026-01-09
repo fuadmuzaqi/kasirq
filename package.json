@@ -1,0 +1,9 @@
+{
+  "name": "web-kasir-cloud-turso",
+  "version": "1.0.0",
+  "main": "index.html",
+  "dependencies": {
+    "@libsql/client": "^0.4.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
