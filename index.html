@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Kasir Cloud Pro - High Performance</title>
+  <title>Kasir Cloud Pro - Fixed Print & Edit Qty</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <style>
     :root {
@@ -38,14 +38,13 @@
     .btn-primary { background: var(--primary); color: white; }
     .btn-danger { background: var(--danger); color: white; }
     .btn-secondary { background: #334155; color: white; }
-    .btn-sm { height: 34px; font-size: 0.7rem; width: auto; padding: 0 10px; }
+    .btn-sm { height: 32px; font-size: 0.7rem; width: auto; padding: 0 10px; border-radius: 8px; }
 
     .table-wrapper { overflow-x: auto; border-radius: 10px; background: rgba(2, 6, 23, 0.4); margin-top: 8px; }
     table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
     th { background: rgba(30, 41, 59, 0.8); color: white; padding: 10px; text-align: left; }
     td { padding: 10px; border-bottom: 1px solid rgba(148, 163, 184, 0.05); }
 
-    /* Pagination */
     .pagination { display: flex; gap: 5px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
     .page-btn { padding: 6px 12px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; cursor: pointer; font-size: 0.75rem; }
     .page-btn.active { background: var(--primary); border-color: var(--primary); }
@@ -54,14 +53,21 @@
     .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
     .dialog { background: #1e293b; width: 100%; max-width: 400px; border-radius: 20px; padding: 24px; }
 
+    /* FIX PRINTING - PAKSA WARNA HITAM */
     #printArea { display: none; }
     @media print {
-      body * { display: none !important; }
-      #printArea { display: block !important; color: black !important; background: white !important; width: 100%; padding: 0; margin: 0; }
-      .receipt-header { text-align: center; margin-bottom: 10px; border-bottom: 1px dashed #000; padding-bottom: 5px; }
-      .receipt-shop-name { font-size: 16pt; font-weight: bold; display: block; color: black !important; }
-      .receipt-info { font-size: 10pt; display: block; color: black !important; }
-      pre { font-family: 'Courier New', monospace; font-size: 10pt; line-height: 1.2; white-space: pre-wrap; color: black !important; }
+      body * { visibility: hidden; }
+      #printArea, #printArea * { 
+        visibility: visible !important; 
+        display: block !important; 
+        color: black !important; 
+        background: white !important; 
+      }
+      #printArea { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; }
+      .receipt-header { text-align: center; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed black; }
+      .receipt-shop-name { font-size: 16pt; font-weight: bold; display: block; margin-bottom: 2px; }
+      .receipt-info { font-size: 10pt; display: block; }
+      pre { font-family: 'Courier New', monospace; font-size: 10pt; line-height: 1.2; margin: 0; white-space: pre-wrap; }
       @page { margin: 0; }
     }
   </style>
@@ -73,6 +79,7 @@
       <h2 style="text-align: center; margin-bottom: 20px;">Masuk Kasir</h2>
       <input type="password" id="accessInput" placeholder="Kode Akses" style="text-align: center; margin-bottom: 15px;" />
       <button class="btn btn-primary" onclick="handleLogin()">Buka Sistem</button>
+      <p id="loginMsg" style="color:var(--danger); font-size:0.75rem; margin-top:12px; text-align:center;"></p>
     </div>
   </div>
 
@@ -95,8 +102,8 @@
           <label>Cari Produk</label>
           <input id="searchInput" placeholder="Ketik nama barang..." oninput="renderProductList()" autocomplete="off" />
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-            <div class="field-group"><label>Jumlah</label><input type="number" id="qtyInput" value="1" /></div>
-            <div class="field-group"><label>Potongan (Rp)</label><input type="number" id="discInput" value="0" /></div>
+            <div class="field-group"><label>Jumlah Tambah</label><input type="number" id="qtyInput" value="1" /></div>
+            <div class="field-group"><label>Disc Rp</label><input type="number" id="discInput" value="0" /></div>
           </div>
           <div class="table-wrapper" id="searchResultWrapper" style="display:none; max-height: 250px;">
             <table>
@@ -105,10 +112,14 @@
             </table>
           </div>
         </div>
+
         <div class="card">
           <h4 style="margin-bottom:10px;">Daftar Belanja</h4>
           <div id="cartItems"></div>
-          <input type="number" id="bayarInput" oninput="calcChange()" placeholder="Uang Bayar..." style="margin-top:10px; font-weight:800; color:var(--success);" />
+          <div style="margin-top:15px; border-top: 1px solid #334155; padding-top: 10px;">
+            <label>Uang Tunai</label>
+            <input type="number" id="bayarInput" oninput="calcChange()" placeholder="Rp 0" style="font-weight:800; color:var(--success);" />
+          </div>
           <div id="changeText" style="margin-top:10px; font-weight:800; text-align:right; font-size: 0.9rem;">Kembali: Rp 0</div>
         </div>
       </section>
@@ -117,25 +128,24 @@
         <div class="card">
           <h3 id="formTitle" style="margin-bottom:15px;">Data Produk</h3>
           <input type="hidden" id="pId">
-          <div class="field-group"><label>Nama Barang</label><input id="pName" placeholder="Nama Lengkap Produk" /></div>
+          <div class="field-group"><label>Nama Barang</label><input id="pName" placeholder="Nama Produk" /></div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-            <div><label>HPP (Beli)</label><input type="number" id="pBuy" placeholder="0" /></div>
-            <div><label>Harga Jual</label><input type="number" id="pSell" placeholder="0" /></div>
+            <div><label>HPP (Beli)</label><input type="number" id="pBuy" /></div>
+            <div><label>Harga Jual</label><input type="number" id="pSell" /></div>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div><label>Stok Barang</label><input type="number" id="pStock" placeholder="0" /></div>
-            <div><label>Kode / SKU (Auto)</label><input id="pSku" placeholder="Otomatis" readonly /></div>
+            <div><label>Stok</label><input type="number" id="pStock" /></div>
+            <div><label>SKU (Auto)</label><input id="pSku" readonly /></div>
           </div>
           <button class="btn btn-primary" onclick="saveProduct()" style="margin-top:20px;">Simpan Barang</button>
-          <button id="btnCancelEdit" class="btn btn-secondary btn-sm" onclick="clearPForm()" style="display:none; margin-top:10px; width:100%;">Batal Edit / Reset</button>
+          <button id="btnCancelEdit" class="btn btn-secondary btn-sm" onclick="clearPForm()" style="display:none; margin-top:10px; width:100%;">Batal / Reset</button>
         </div>
-
         <div class="card">
-          <label>Cari di Stok Produk</label>
-          <input id="adminSearchInput" placeholder="Ketik nama atau SKU..." oninput="renderAdminProducts(1)" />
+          <label>Pencarian Stok</label>
+          <input id="adminSearchInput" placeholder="Cari..." oninput="renderAdminProducts(1)" />
           <div class="table-wrapper">
             <table>
-              <thead><tr><th>Produk (A-Z)</th><th>Stok</th><th>Opsi</th></tr></thead>
+              <thead><tr><th>Produk</th><th>Stok</th><th>Opsi</th></tr></thead>
               <tbody id="adminProductTableBody"></tbody>
             </table>
           </div>
@@ -144,7 +154,7 @@
       </section>
 
       <section id="secLaporan" style="display:none;">
-        <div class="card"><label>Filter Bulan</label><input type="month" id="reportMonth" onchange="renderReport()" /></div>
+        <div class="card"><label>Bulan</label><input type="month" id="reportMonth" onchange="renderReport()" /></div>
         <div class="table-wrapper">
           <table>
             <thead><tr><th>Waktu</th><th>Barang</th><th>Qty</th><th>HPP</th><th>Jual</th><th>Laba</th></tr></thead>
@@ -157,12 +167,12 @@
       <section id="secSetting" style="display:none;">
         <div class="card">
           <div class="field-group"><label>Nama Toko</label><input id="sName" /></div>
-          <div class="field-group"><label>Alamat Toko</label><input id="sAddr" /></div>
-          <div class="field-group"><label>No. HP Toko</label><input id="sPhone" /></div>
-          <div class="field-group"><label>Lebar Struk</label><select id="sPaper"><option value="32">58mm (32 Kar)</option><option value="48">80mm (48 Kar)</option></select></div>
+          <div class="field-group"><label>Alamat</label><input id="sAddr" /></div>
+          <div class="field-group"><label>No HP</label><input id="sPhone" /></div>
+          <div class="field-group"><label>Kertas</label><select id="sPaper"><option value="32">58mm</option><option value="48">80mm</option></select></div>
           <button class="btn btn-primary" onclick="saveSettings()">Simpan</button>
         </div>
-        <div class="card"><button class="btn btn-danger btn-sm" onclick="resetData()" style="width:100%">⚠️ Kosongkan Data Cloud</button></div>
+        <div class="card"><button class="btn btn-danger btn-sm" onclick="resetData()" style="width:100%">Kosongkan Cloud</button></div>
       </section>
     </main>
 
@@ -185,14 +195,7 @@
     let itemsPerPage = 10;
 
     const formatRp = (v) => "Rp " + (v || 0).toLocaleString('id-ID');
-
-    // AUTO SKU GENERATOR
-    function generateSKU() {
-      const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      let result = "BRG-";
-      for (let i = 0; i < 6; i++) result += chars[Math.floor(Math.random() * chars.length)];
-      return result;
-    }
+    const generateSKU = () => "BRG-" + Math.random().toString(36).substr(2, 6).toUpperCase();
 
     async function secureFetch(url, method = 'GET', body = null) {
       const options = { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
@@ -211,7 +214,7 @@
         document.getElementById('loginBackdrop').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         initApp();
-      } else { alert("Kode salah!"); }
+      } else { document.getElementById('loginMsg').innerText = "Kode Salah!"; }
     }
 
     async function initApp() {
@@ -262,13 +265,35 @@
       document.getElementById('searchInput').value = ""; renderProductList(); renderCart();
     }
 
+    // --- FITUR EDIT QTY DI DAFTAR BELANJA ---
+    function editCartQty(idx) {
+      const newQty = prompt("Masukkan jumlah (Qty) baru:", cart[idx].qty);
+      if (newQty !== null && !isNaN(newQty) && newQty > 0) {
+        const p = products.find(x => x.id === cart[idx].productId);
+        if (p && p.stock < parseInt(newQty)) return alert("Stok tidak cukup untuk jumlah tersebut!");
+        cart[idx].qty = parseInt(newQty);
+        renderCart();
+      }
+    }
+
     function renderCart() {
       const container = document.getElementById('cartItems');
       let total = 0;
       container.innerHTML = cart.map((item, idx) => {
         let sub = (item.qty * item.price) - item.discount;
         total += sub;
-        return `<div style="display:flex; justify-content:space-between; font-size:0.8rem; border-bottom:1px solid #333; padding:5px 0;"><span>${item.name} x${item.qty}</span><span>${formatRp(sub)} <b onclick="cart.splice(${idx},1);renderCart()" style="color:red; cursor:pointer">X</b></span></div>`;
+        return `
+          <div style="display:flex; justify-content:space-between; font-size:0.8rem; border-bottom:1px solid #333; padding:8px 0; align-items:center;">
+            <div onclick="editCartQty(${idx})" style="cursor:pointer; flex:1;">
+              <b>${item.name}</b><br>
+              <span style="color:var(--primary)">${item.qty} x ${formatRp(item.price)}</span>
+              ${item.discount > 0 ? `<br><small style="color:red">Disc: -${formatRp(item.discount)}</small>` : ''}
+            </div>
+            <div style="text-align:right">
+              <b>${formatRp(sub)}</b><br>
+              <span onclick="cart.splice(${idx},1);renderCart()" style="color:red; cursor:pointer; font-size:0.7rem;">Hapus</span>
+            </div>
+          </div>`;
       }).join('');
       document.getElementById('grandTotal').innerText = formatRp(total);
       calcChange();
@@ -288,13 +313,13 @@
       const trx = { id: "INV-" + Date.now(), date: new Date().toISOString(), total, bayar, items: cart };
       const res = await secureFetch('/api/sales', 'POST', trx);
       if(res.success) {
-        if(isPrint) printStruk(trx); else alert("Tersimpan!");
+        if(isPrint) printStruk(trx); else alert("Berhasil Disimpan!");
         cart = []; document.getElementById('bayarInput').value = "";
         await loadProducts(); renderCart();
       }
     }
 
-    // --- MANAJEMEN PRODUK (Search, Sort, Pagination) ---
+    // --- PRODUK ---
     async function saveProduct() {
       const pData = { id: document.getElementById('pId').value || "p" + Date.now(), name: document.getElementById('pName').value, buy: parseInt(document.getElementById('pBuy').value) || 0, sell: parseInt(document.getElementById('pSell').value) || 0, stock: parseInt(document.getElementById('pStock').value) || 0, sku: document.getElementById('pSku').value };
       if(!pData.name) return alert("Nama wajib!");
@@ -302,33 +327,23 @@
       clearPForm(); await loadProducts();
     }
 
-    function renderAdminProducts(page) {
-      const q = document.getElementById('adminSearchInput').value.toLowerCase();
-      // Filter & Sort A-Z
-      let filtered = products
-        .filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q))
-        .sort((a, b) => a.name.localeCompare(b.name));
-
-      const totalPages = Math.ceil(filtered.length / itemsPerPage);
-      const start = (page - 1) * itemsPerPage;
-      const paginated = filtered.slice(start, start + itemsPerPage);
-
-      const body = document.getElementById('adminProductTableBody');
-      body.innerHTML = paginated.map(p => `<tr><td>${p.name}<br><small>${p.sku}</small></td><td>${p.stock}</td><td><button class="btn btn-primary btn-sm" onclick="editProduct('${p.id}')">E</button> <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">X</button></td></tr>`).join('');
-
-      // Build Pagination Buttons
-      const paginDiv = document.getElementById('adminPagination');
-      paginDiv.innerHTML = "";
-      for (let i = 1; i <= totalPages; i++) {
-        paginDiv.innerHTML += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="renderAdminProducts(${i})">${i}</button>`;
-      }
-    }
-
     async function deleteProduct(id) {
       if(confirm("Hapus barang?")) {
         await secureFetch(`/api/products?id=${id}`, 'DELETE');
         await loadProducts();
       }
+    }
+
+    function renderAdminProducts(page) {
+      const q = document.getElementById('adminSearchInput').value.toLowerCase();
+      let filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)).sort((a,b) => a.name.localeCompare(b.name));
+      const totalPages = Math.ceil(filtered.length / itemsPerPage);
+      const start = (page - 1) * itemsPerPage;
+      const paginated = filtered.slice(start, start + itemsPerPage);
+      document.getElementById('adminProductTableBody').innerHTML = paginated.map(p => `<tr><td>${p.name}<br><small>${p.sku}</small></td><td>${p.stock}</td><td><button class="btn btn-primary btn-sm" onclick="editProduct('${p.id}')">E</button> <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">X</button></td></tr>`).join('');
+      let paginHtml = "";
+      for (let i = 1; i <= totalPages; i++) { paginHtml += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="renderAdminProducts(${i})">${i}</button>`; }
+      document.getElementById('adminPagination').innerHTML = paginHtml;
     }
 
     function editProduct(id) {
@@ -356,23 +371,21 @@
     async function renderReport() {
       const month = document.getElementById('reportMonth').value;
       const sales = await secureFetch(`/api/sales?month=${month}`);
-      const body = document.getElementById('reportDetailedBody');
-      body.innerHTML = "";
       let totalLaba = 0;
-      sales.forEach(s => {
+      document.getElementById('reportDetailedBody').innerHTML = sales.map(s => {
         const d = new Date(s.date);
         const waktuStr = d.toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit'}) + " " + d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
-        s.items.forEach((item, idx) => {
+        return s.items.map((item, idx) => {
           const subJual = (item.qty * item.price) - item.discount;
           const subLaba = subJual - (item.qty * item.buy);
           totalLaba += subLaba;
-          body.innerHTML += `<tr><td>${idx === 0 ? waktuStr : ''}</td><td>${item.name}</td><td>${item.qty}</td><td>${formatRp(item.buy)}</td><td>${formatRp(item.price)}</td><td style="color:var(--success)">${formatRp(subLaba)}</td></tr>`;
-        });
-      });
-      document.getElementById('reportFooter').innerHTML = `<tr><td colspan="5" style="text-align:right">TOTAL KEUNTUNGAN:</td><td style="color:var(--success)">${formatRp(totalLaba)}</td></tr>`;
+          return `<tr><td>${idx === 0 ? waktuStr : ''}</td><td>${item.name}</td><td>${item.qty}</td><td>${formatRp(item.buy)}</td><td>${formatRp(item.price)}</td><td style="color:var(--success)">${formatRp(subLaba)}</td></tr>`;
+        }).join('');
+      }).join('');
+      document.getElementById('reportFooter').innerHTML = `<tr><td colspan="5" style="text-align:right">TOTAL LABA:</td><td style="color:var(--success)">${formatRp(totalLaba)}</td></tr>`;
     }
 
-    // --- CETAK STRUK ---
+    // --- CETAK STRUK (FIX BLANK) ---
     function printStruk(trx) {
       const W = parseInt(settings.paper || 32);
       const line = "-".repeat(W) + "\n";
@@ -393,9 +406,15 @@
       let kR = (trx.bayar - trx.total).toLocaleString();
       bodyText += "KEMBALI : " + " ".repeat(Math.max(0, W - 10 - kR.length)) + kR + "\n" + line;
       bodyText += "\n" + "TERIMA KASIH".padStart((W + 12)/2, ' ') + "\n\n\n\n";
+      
       const pArea = document.getElementById('printArea');
       pArea.innerHTML = headerHtml + `<pre>${bodyText}</pre>`;
-      setTimeout(() => { window.print(); setTimeout(() => { pArea.innerHTML = ""; }, 500); }, 250);
+      
+      // Delay kecil untuk memastikan browser merender HTML sebelum cetak
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => { pArea.innerHTML = ""; }, 500);
+      }, 300);
     }
 
     async function saveSettings() {
