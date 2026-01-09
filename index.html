@@ -2,9 +2,10 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Kasir Cloud Pro - Fitur Lengkap</title>
+  <title>Kasir Cloud Pro - Dark Mode Edition</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <style>
+    /* UI THEME: DARK MODE ONLY */
     :root {
       --primary: #2563eb; --danger: #dc2626; --success: #22c55e;
       --text: #e5e7eb; --muted: #9ca3af; --radius: 14px;
@@ -13,7 +14,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
     .app { max-width: var(--app-max); margin: 0 auto; padding: 12px; padding-bottom: 120px; }
 
@@ -24,7 +25,6 @@
       margin: -12px -12px 12px -12px;
     }
 
-    /* Tabs Navigation - Icons Centered */
     .tabs { display: flex; gap: 12px; justify-content: center; padding: 15px 0; }
     .tab-btn { 
       width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;
@@ -36,7 +36,7 @@
     .card { background: var(--card-bg); border-radius: var(--radius); border: 1px solid rgba(148, 163, 184, 0.1); padding: 16px; margin-bottom: 16px; }
     .field-group { margin-bottom: 12px; }
     label { font-size: 0.7rem; color: var(--muted); display: block; margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
-    input, select { width: 100%; height: var(--control-minh); padding: 0 14px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; }
+    input { width: 100%; height: var(--control-minh); padding: 0 14px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; }
     
     .btn { width: 100%; height: var(--control-minh); border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-primary { background: var(--primary); color: white; }
@@ -50,31 +50,31 @@
     td { padding: 10px; border-bottom: 1px solid rgba(148, 163, 184, 0.05); }
 
     .pagination { display: flex; gap: 5px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
-    .page-btn { 
-      min-width: 32px; height: 32px; padding: 0 5px; display: flex; align-items: center; justify-content: center;
-      border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; cursor: pointer; font-size: 0.75rem; 
-    }
-    .page-btn.active { background: var(--primary); border-color: var(--primary); }
+    .page-btn { min-width: 32px; height: 32px; padding: 0 5px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; cursor: pointer; font-size: 0.75rem; }
+    .page-btn.active { background: var(--primary); }
 
     .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px; z-index: 100; background: var(--bg); border-top: 1px solid #1e293b; }
     .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
     .dialog { background: #1e293b; width: 100%; max-width: 400px; border-radius: 20px; padding: 24px; }
 
-    /* PRINT FIX - Selalu Putih Bersih */
+    /* PRINT AREA FIX: Menjamin struk muncul di Mobile */
     #printArea { display: none; }
+
     @media print {
-      @page { margin: 0; }
-      body * { visibility: hidden; background: white !important; }
-      #printArea, #printArea * { visibility: visible !important; display: block !important; color: black !important; }
+      body * { visibility: hidden; }
+      .app, .backdrop, header, .tabs, .bottom-bar { display: none !important; }
+      
+      #printArea, #printArea * { visibility: visible !important; display: block !important; }
       #printArea { 
         position: absolute; left: 0; top: 0; width: 100%; 
-        padding: 20px; background: white !important;
+        background: white !important; color: black !important; 
+        padding: 10px;
       }
-      .receipt-header { text-align: center; margin-bottom: 15px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
-      .receipt-shop-name { font-size: 16pt; font-weight: bold; display: block; margin-bottom: 2px; }
-      .receipt-info { font-size: 9pt; display: block; }
-      pre { font-family: 'Courier New', monospace; font-size: 10pt; line-height: 1.3; white-space: pre-wrap; word-break: break-all; }
-      .footer-receipt { text-align: center; margin-top: 20px; border-top: 1px dashed #000; padding-top: 10px; font-size: 9pt; }
+      .receipt-header { text-align: center; border-bottom: 1px dashed black; padding-bottom: 8px; margin-bottom: 10px; }
+      .receipt-shop-name { font-size: 16pt; font-weight: bold; }
+      .receipt-info { font-size: 9pt; }
+      pre { font-family: 'Courier New', monospace; font-size: 10pt; line-height: 1.2; white-space: pre-wrap; color: black !important; }
+      @page { margin: 0.5cm; }
     }
   </style>
 </head>
@@ -82,17 +82,16 @@
 
   <div id="loginBackdrop" class="backdrop">
     <div class="dialog">
-      <h2 style="text-align: center; margin-bottom: 20px;">Masuk Kasir</h2>
+      <h2 style="text-align: center; margin-bottom: 20px;">Kasir Masuk</h2>
       <input type="password" id="accessInput" placeholder="Kode Akses" style="text-align: center; margin-bottom: 15px;" />
       <button class="btn btn-primary" onclick="handleLogin()">Buka Sistem</button>
-      <p id="loginMsg" style="color:var(--danger); font-size:0.75rem; margin-top:12px; text-align:center;"></p>
     </div>
   </div>
 
   <div class="app" id="app" style="display:none;">
     <header>
-      <div id="shopNameHeader" style="font-weight: 800;">KASIR</div>
-      <div style="font-size: 0.6rem; color: var(--success);">Online</div>
+      <div id="shopNameHeader" style="font-weight: 800; font-size: 1.1rem;">KASIR</div>
+      <div style="font-size: 0.6rem; color: var(--success); border: 1px solid var(--success); padding: 2px 6px; border-radius: 4px;">ONLINE</div>
     </header>
 
     <div class="tabs">
@@ -102,96 +101,96 @@
       <button class="tab-btn" id="tabSetting" onclick="showTab('setting')">⚙️</button>
     </div>
 
-    <main>
-      <section id="secKasir">
-        <div class="card">
-          <label>Cari Produk</label>
-          <input id="searchInput" placeholder="Nama barang..." oninput="renderProductList()" autocomplete="off" />
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-            <div class="field-group"><label>Jumlah</label><input type="number" id="qtyInput" value="1" /></div>
-            <div class="field-group"><label>Disc Rp</label><input type="number" id="discInput" value="0" /></div>
-          </div>
-          <div class="table-wrapper" id="searchResultWrapper" style="display:none; max-height: 250px;">
-            <table><tbody id="productTableBody"></tbody></table>
-          </div>
+    <section id="secKasir">
+      <div class="card">
+        <label>Pencarian Realtime</label>
+        <input id="searchInput" placeholder="Ketik nama atau SKU..." oninput="renderProductList()" autocomplete="off" />
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+          <div class="field-group"><label>Jumlah</label><input type="number" id="qtyInput" value="1" /></div>
+          <div class="field-group"><label>Potongan (Rp)</label><input type="number" id="discInput" value="0" /></div>
         </div>
-        <div class="card">
-          <h4 style="margin-bottom:10px;">Daftar Belanja</h4>
-          <div id="cartItems"></div>
-          <label style="margin-top:15px">Bayar Tunai</label>
-          <input type="number" id="bayarInput" oninput="calcChange()" placeholder="Rp 0" style="font-weight:800; color:var(--success); border: 2px solid var(--primary);" />
-          <div id="changeText" style="margin-top:10px; font-weight:800; text-align:right; font-size:1.1rem">Kembali: Rp 0</div>
+        <div class="table-wrapper" id="searchResultWrapper" style="display:none; max-height: 200px;">
+          <table><tbody id="productTableBody"></tbody></table>
         </div>
-      </section>
+      </div>
+      <div class="card">
+        <h4 style="margin-bottom:12px; font-size: 0.9rem;">Daftar Belanja</h4>
+        <div id="cartItems"></div>
+        <div style="margin-top: 15px;">
+          <label>Uang Bayar (Tunai)</label>
+          <input type="number" id="bayarInput" oninput="calcChange()" placeholder="Rp 0" style="font-weight:900; color:var(--success); border: 2px solid #334155;" />
+          <div id="changeText" style="margin-top:8px; font-weight:800; text-align:right; font-size: 1rem; color: var(--muted);">Kembali: Rp 0</div>
+        </div>
+      </div>
+    </section>
 
-      <section id="secProduk" style="display:none;">
-        <div class="card">
-          <h3 id="formTitle">Data Produk</h3>
-          <input type="hidden" id="pId">
-          <div class="field-group"><label>Nama Barang</label><input id="pName" /></div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-            <input type="number" id="pBuy" placeholder="HPP (Beli)" />
-            <input type="number" id="pSell" placeholder="Harga Jual" />
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <input type="number" id="pStock" placeholder="Stok" />
-            <input id="pSku" readonly />
-          </div>
-          <button class="btn btn-primary" onclick="saveProduct()" style="margin-top:15px;">Simpan Barang</button>
+    <section id="secProduk" style="display:none;">
+      <div class="card">
+        <h3 id="formTitle" style="margin-bottom:15px;">Input Produk</h3>
+        <input type="hidden" id="pId">
+        <div class="field-group"><label>Nama Barang</label><input id="pName" /></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div class="field-group"><label>Harga Beli</label><input type="number" id="pBuy" /></div>
+          <div class="field-group"><label>Harga Jual</label><input type="number" id="pSell" /></div>
         </div>
-        <div class="card">
-          <label>Cari di Stok</label>
-          <input id="adminSearchInput" placeholder="Cari..." oninput="renderAdminProducts(1)" />
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Nama (A-Z)</th><th>Stok</th><th>Aksi</th></tr></thead>
-              <tbody id="adminProductTableBody"></tbody>
-            </table>
-          </div>
-          <div id="adminPagination" class="pagination"></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="field-group"><label>Stok</label><input type="number" id="pStock" /></div>
+          <div class="field-group"><label>SKU (Auto)</label><input id="pSku" readonly /></div>
         </div>
-      </section>
+        <button class="btn btn-primary" onclick="saveProduct()">Simpan Barang</button>
+      </div>
+      <div class="card">
+        <label>Cari Stok</label>
+        <input id="adminSearchInput" placeholder="Cari..." oninput="renderAdminProducts(1)" />
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Produk</th><th>Stok</th><th>Aksi</th></tr></thead>
+            <tbody id="adminProductTableBody"></tbody>
+          </table>
+        </div>
+        <div id="adminPagination" class="pagination"></div>
+      </div>
+    </section>
 
-      <section id="secLaporan" style="display:none;">
-        <div class="card">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <input type="month" id="reportMonth" onchange="renderReport()" style="width:70%" />
-            <button class="btn btn-secondary btn-sm" onclick="downloadCSV()">CSV</button>
-          </div>
+    <section id="secLaporan" style="display:none;">
+      <div class="card">
+        <div style="display:flex; gap:10px; align-items:center;">
+          <input type="month" id="reportMonth" onchange="renderReport()" style="flex:1" />
+          <button class="btn btn-secondary btn-sm" onclick="downloadCSV()">Export</button>
         </div>
-        <div class="card">
-          <h4 style="font-size:0.8rem; margin-bottom:10px; color:var(--success);">Rekap Harian</h4>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Tanggal</th><th>Item</th><th>Laba</th></tr></thead>
-              <tbody id="dailyReportBody"></tbody>
-            </table>
-          </div>
+      </div>
+      <div class="card">
+        <h4 style="font-size:0.8rem; margin-bottom:10px; color:var(--success);">Rekap Bulanan</h4>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Tanggal</th><th>Item</th><th>Laba</th></tr></thead>
+            <tbody id="dailyReportBody"></tbody>
+          </table>
         </div>
-        <div class="card">
-          <h4 style="font-size:0.8rem; margin-bottom:10px; color:var(--primary);">Cetak Ulang (3 Hari Terakhir)</h4>
-          <div class="table-wrapper">
-            <table><tbody id="reprintLogBody"></tbody></table>
-          </div>
+      </div>
+      <div class="card">
+        <h4 style="font-size:0.8rem; margin-bottom:10px; color:var(--primary);">Cetak Ulang (3 Hari)</h4>
+        <div class="table-wrapper">
+          <table><tbody id="reprintLogBody"></tbody></table>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section id="secSetting" style="display:none;">
-        <div class="card">
-          <div class="field-group"><label>Nama Toko</label><input id="sName" /></div>
-          <div class="field-group"><label>Alamat</label><input id="sAddr" /></div>
-          <div class="field-group"><label>No HP</label><input id="sPhone" /></div>
-          <button class="btn btn-primary" onclick="saveSettings()">Simpan</button>
-        </div>
-        <div class="card"><button class="btn btn-danger btn-sm" onclick="resetData()" style="width:100%">Reset Data Cloud</button></div>
-      </section>
-    </main>
+    <section id="secSetting" style="display:none;">
+      <div class="card">
+        <div class="field-group"><label>Nama Toko</label><input id="sName" /></div>
+        <div class="field-group"><label>Alamat</label><input id="sAddr" /></div>
+        <div class="field-group"><label>Nomor HP</label><input id="sPhone" /></div>
+        <button class="btn btn-primary" onclick="saveSettings()">Simpan Pengaturan</button>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="resetData()">Hapus Semua Data Cloud</button>
+    </section>
 
     <div class="bottom-bar" id="bottomBar">
-      <div class="bottom-inner" style="display:flex; gap:10px; max-width:500px; margin:0 auto;">
-        <div style="flex:1;"><small>Total:</small><div id="grandTotal" style="font-weight:900; color:var(--primary); font-size:1.2rem;">Rp 0</div></div>
+      <div style="display:flex; gap:10px; max-width:500px; margin:0 auto; align-items:center;">
+        <div style="flex:1;"><small style="font-size:0.6rem; color:var(--muted)">Total:</small><div id="grandTotal" style="font-weight:900; color:var(--primary); font-size:1.2rem;">Rp 0</div></div>
         <button class="btn btn-secondary btn-sm" style="width:auto;" onclick="finishTrx(false)">Simpan</button>
-        <button class="btn btn-primary btn-sm" style="width:auto; padding:0 20px" onclick="finishTrx(true)">+ Struk</button>
+        <button class="btn btn-primary btn-sm" style="width:auto; padding:0 20px" onclick="finishTrx(true)">+ Cetak</button>
       </div>
     </div>
   </div>
@@ -199,13 +198,8 @@
   <div id="printArea"></div>
 
   <script>
-    let products = [];
-    let settings = {};
-    let cart = [];
-    let currentSales = [];
-    let token = sessionStorage.getItem('kasir_token');
+    let products = [], settings = {}, cart = [], currentSales = [], token = sessionStorage.getItem('kasir_token');
     const itemsPerPage = 10;
-
     const formatRp = (v) => "Rp " + (v || 0).toLocaleString('id-ID');
     const generateSKU = () => "BRG-" + Math.random().toString(36).substr(2, 6).toUpperCase();
 
@@ -226,7 +220,7 @@
         document.getElementById('loginBackdrop').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         initApp();
-      } else alert("Kode Salah!");
+      } else alert("Kode Akses Salah!");
     }
 
     async function initApp() {
@@ -250,7 +244,7 @@
       ['tabKasir', 'tabProduk', 'tabLaporan', 'tabSetting'].forEach(b => document.getElementById(b).classList.remove('active'));
       document.getElementById('sec' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = 'block';
       document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('active');
-      document.getElementById('bottomBar').style.display = (t === 'kasir') ? 'flex' : 'none';
+      document.getElementById('bottomBar').style.display = (t === 'kasir') ? 'block' : 'none';
       if(t === 'laporan') renderReport();
     }
 
@@ -262,14 +256,14 @@
       if (!q) { wrapper.style.display = 'none'; return; }
       const filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
       wrapper.style.display = 'block';
-      body.innerHTML = filtered.slice(0, 5).map(p => `<tr onclick="addToCart('${p.id}')"><td>${p.name}<br><small>${p.sku}</small></td><td>${formatRp(p.sell)}</td></tr>`).join('');
+      body.innerHTML = filtered.slice(0, 5).map(p => `<tr onclick="addToCart('${p.id}')"><td style="padding:12px">${p.name}<br><small style="color:var(--muted)">${p.sku} | Stok: ${p.stock}</small></td><td style="text-align:right">${formatRp(p.sell)}</td></tr>`).join('');
     }
 
     function addToCart(id) {
       const p = products.find(x => x.id === id);
       const qty = parseInt(document.getElementById('qtyInput').value) || 1;
       const disc = parseInt(document.getElementById('discInput').value) || 0;
-      if (p.stock < qty) return alert("Stok kurang!");
+      if (p.stock < qty) return alert("Stok tidak mencukupi!");
       cart.push({ productId: id, name: p.name, price: p.sell, buy: p.buy, qty, discount: disc });
       document.getElementById('searchInput').value = ""; renderProductList(); renderCart();
     }
@@ -280,13 +274,18 @@
       container.innerHTML = cart.map((item, idx) => {
         let sub = (item.qty * item.price) - item.discount;
         total += sub;
-        return `<div style="display:flex; justify-content:space-between; font-size:0.8rem; border-bottom:1px solid #334155; padding:8px 0;">
-          <span onclick="editCartQty(${idx})" style="cursor:pointer">${item.name} x${item.qty}</span>
-          <span>${formatRp(sub)} <b onclick="cart.splice(${idx},1);renderCart()" style="color:red; cursor:pointer; padding-left:10px">X</b></span>
+        return `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; border-bottom:1px solid rgba(255,255,255,0.05); padding:10px 0;">
+          <div onclick="editCartQty(${idx})" style="cursor:pointer"><b>${item.name}</b><br><small>${item.qty} x ${item.price.toLocaleString()}</small></div>
+          <div style="text-align:right"><span>${formatRp(sub)}</span><br><small onclick="cart.splice(${idx},1);renderCart()" style="color:var(--danger); cursor:pointer">Hapus</small></div>
         </div>`;
       }).join('');
       document.getElementById('grandTotal').innerText = formatRp(total);
       calcChange();
+    }
+
+    function editCartQty(idx) {
+      const n = prompt("Ubah Jumlah:", cart[idx].qty);
+      if(n > 0) { cart[idx].qty = parseInt(n); renderCart(); }
     }
 
     function calcChange() {
@@ -304,80 +303,57 @@
       const trx = { id: "INV-" + Date.now(), date: new Date().toISOString(), total, bayar, items: cart };
       const res = await secureFetch('/api/sales', 'POST', trx);
       if(res.success) {
-        if(isPrint) printStruk(trx); else alert("Berhasil disimpan!");
+        if(isPrint) printStruk(trx); else alert("Data Tersimpan!");
         cart = []; document.getElementById('bayarInput').value = "";
         await loadProducts(); renderCart();
       }
     }
 
-    // --- PRINT STRUK REFINED ---
+    // --- PRINT REFINED ---
     function printStruk(trx) {
-      const W = 32; // Lebar standar kertas thermal
+      const W = 32;
       const line = "-".repeat(W) + "\n";
-      const dash = ".".repeat(W) + "\n";
+      const header = `<div class="receipt-header"><div class="receipt-shop-name">${settings.name}</div><div class="receipt-info">${settings.address}</div><div class="receipt-info">HP: ${settings.phone}</div></div>`;
       
-      const header = `
-        <div class="receipt-header">
-          <span class="receipt-shop-name">${settings.name || 'TOKO KAMI'}</span>
-          <span class="receipt-info">${settings.address || ''}</span>
-          <span class="receipt-info">WA: ${settings.phone || '-'}</span>
-        </div>`;
-
-      let body = "No: " + trx.id.slice(-8) + "\n";
-      body += "Tgl: " + new Date(trx.date).toLocaleString('id-ID', {dateStyle:'short', timeStyle:'short'}) + "\n";
-      body += line;
-
+      let body = "No: " + trx.id.slice(-8) + "\n" + "Tgl: " + new Date(trx.date).toLocaleString('id-ID') + "\n" + line;
       trx.items.forEach(i => {
-        const subtotal = (i.qty * i.price - i.discount);
+        const sub = (i.qty * i.price - i.discount);
         body += i.name.substring(0, W) + "\n";
-        body += `${i.qty} x ${i.price.toLocaleString()} = ${subtotal.toLocaleString()}\n`;
-        if(i.discount > 0) body += ` Disc: -${i.discount.toLocaleString()}\n`;
+        body += `${i.qty} x ${i.price.toLocaleString().padStart(7)} = ${sub.toLocaleString().padStart(9)}\n`;
       });
-
+      
       const kembali = (trx.bayar || 0) - trx.total;
       body += line;
-      body += `TOTAL:   ${trx.total.toLocaleString().padStart(W-9)}\n`;
-      body += `BAYAR:   ${(trx.bayar || 0).toLocaleString().padStart(W-9)}\n`;
-      body += `KEMBALI: ${kembali.toLocaleString().padStart(W-9)}\n`;
-      body += line;
-
-      const footer = `
-        <div class="footer-receipt">
-          Terima Kasih Atas Kunjungan Anda<br>
-          Barang yang sudah dibeli tidak dapat ditukar
-        </div>`;
+      body += "TOTAL  : " + trx.total.toLocaleString().padStart(W-9) + "\n";
+      body += "BAYAR  : " + (trx.bayar || 0).toLocaleString().padStart(W-9) + "\n";
+      body += "KEMBALI: " + kembali.toLocaleString().padStart(W-9) + "\n";
+      body += line + "\n    TERIMA KASIH    \n\n\n";
 
       const pArea = document.getElementById('printArea');
-      pArea.innerHTML = header + `<pre>${body}</pre>` + footer;
-      
-      // Delay sedikit untuk render CSS sebelum print
-      setTimeout(() => { 
-        window.print(); 
-        pArea.innerHTML = ""; 
-      }, 500);
+      pArea.innerHTML = header + `<pre>${body}</pre>`;
+      setTimeout(() => { window.print(); pArea.innerHTML = ""; }, 500);
     }
 
-    // --- FUNGSI ADMIN LAINNYA ---
+    // --- ADMIN & TOOLS ---
     async function saveProduct() {
       const p = { id: document.getElementById('pId').value || "p" + Date.now(), name: document.getElementById('pName').value, buy: parseInt(document.getElementById('pBuy').value), sell: parseInt(document.getElementById('pSell').value), stock: parseInt(document.getElementById('pStock').value), sku: document.getElementById('pSku').value };
-      if(!p.name) return alert("Nama wajib!");
+      if(!p.name) return alert("Nama barang kosong!");
       await secureFetch('/api/products', 'POST', p);
       clearPForm(); await loadProducts();
     }
 
     function renderAdminProducts(page) {
       const q = document.getElementById('adminSearchInput').value.toLowerCase();
-      let sorted = [...products].sort((a,b) => a.name.localeCompare(b.name));
-      let filtered = sorted.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
+      let filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)).sort((a,b) => a.name.localeCompare(b.name));
       const totalPages = Math.ceil(filtered.length / itemsPerPage);
       const paginated = filtered.slice((page-1)*itemsPerPage, page*itemsPerPage);
 
       document.getElementById('adminProductTableBody').innerHTML = paginated.map(p => `<tr>
-        <td>${p.name}<br><small>${p.sku}</small></td><td>${p.stock}</td>
-        <td><button class="btn-primary btn-sm" onclick="editProduct('${p.id}')">E</button> <button class="btn-danger btn-sm" onclick="deleteProduct('${p.id}')">X</button></td></tr>`).join('');
+        <td>${p.name}<br><small style="color:var(--muted)">${p.sku}</small></td><td>${p.stock}</td>
+        <td><button class="btn-primary btn-sm" onclick="editProduct('${p.id}')">Edit</button></td></tr>`).join('');
 
       let phtml = "";
-      for(let i=1; i<=totalPages; i++) { phtml += `<button class="page-btn ${i===page?'active':''}" onclick="renderAdminProducts(${i})">${i}</button>`; }
+      for(let i=1; i<=totalPages; i++) phtml += `<button class="page-btn ${i===page?'active':''}" onclick="renderAdminProducts(${i})">${i}</button>`;
       document.getElementById('adminPagination').innerHTML = phtml;
     }
 
@@ -386,66 +362,8 @@
       document.getElementById('pId').value = p.id; document.getElementById('pName').value = p.name;
       document.getElementById('pBuy').value = p.buy; document.getElementById('pSell').value = p.sell;
       document.getElementById('pStock').value = p.stock; document.getElementById('pSku').value = p.sku;
-      document.getElementById('formTitle').innerText = "Edit Barang"; window.scrollTo(0,0);
-    }
-
-    async function deleteProduct(id) {
-      if(confirm("Hapus barang?")) { await secureFetch(`/api/products?id=${id}`, 'DELETE'); await loadProducts(); }
-    }
-
-    function clearPForm() { 
-      ['pId','pName','pBuy','pSell','pStock'].forEach(i => document.getElementById(i).value = ""); 
-      document.getElementById('pSku').value = generateSKU();
-      document.getElementById('formTitle').innerText = "Data Produk";
+      document.getElementById('formTitle').innerText = "Edit Produk"; window.scrollTo(0,0);
     }
 
     async function renderReport() {
       const month = document.getElementById('reportMonth').value;
-      const sales = await secureFetch(`/api/sales?month=${month}`);
-      currentSales = sales;
-      const now = new Date();
-
-      document.getElementById('reprintLogBody').innerHTML = sales.filter(s => (now - new Date(s.date))/(1000*60*60*24) <= 3).map(s => `<tr>
-        <td><small>${new Date(s.date).toLocaleDateString('id-ID')}</small><br>${formatRp(s.total)}</td>
-        <td style="text-align:right"><button class="btn-primary btn-sm" onclick='printStruk(${JSON.stringify(s)})'>Cetak</button></td></tr>`).join('');
-
-      let daily = {};
-      sales.forEach(s => {
-        let d = new Date(s.date).toLocaleDateString('id-ID');
-        if(!daily[d]) daily[d] = { qty: 0, laba: 0 };
-        s.items.forEach(i => {
-          daily[d].qty += i.qty;
-          daily[d].laba += (i.qty * i.price - i.discount) - (i.qty * i.buy);
-        });
-      });
-      document.getElementById('dailyReportBody').innerHTML = Object.keys(daily).map(d => `<tr><td>${d}</td><td>${daily[d].qty}</td><td style="color:var(--success)">${formatRp(daily[d].laba)}</td></tr>`).join('');
-    }
-
-    function downloadCSV() {
-      let csv = "ID,Tanggal,Total,Laba\n";
-      currentSales.forEach(s => {
-        let laba = s.items.reduce((a,i) => a + ((i.qty*i.price-i.discount)-(i.qty*i.buy)), 0);
-        csv += `${s.id},${s.date},${s.total},${laba}\n`;
-      });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `laporan_${document.getElementById('reportMonth').value}.csv`;
-      a.click();
-    }
-
-    async function saveSettings() {
-      const s = { name: document.getElementById('sName').value, address: document.getElementById('sAddr').value, phone: document.getElementById('sPhone').value, paper: 32 };
-      await secureFetch('/api/settings', 'POST', s); alert("Tersimpan"); location.reload();
-    }
-    
-    async function resetData() { if(confirm("Hapus semua?")) { await secureFetch('/api/settings', 'DELETE'); location.reload(); } }
-    
-    if(token) { 
-      document.getElementById('loginBackdrop').style.display='none'; 
-      document.getElementById('app').style.display='block'; 
-      initApp(); 
-    }
-  </script>
-</body>
-</html>
