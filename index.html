@@ -12,22 +12,22 @@
       --bg: #020617; --card-bg: rgba(15, 23, 42, 0.7);
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
     body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
     .app { max-width: var(--app-max); margin: 0 auto; padding: 12px; padding-bottom: 120px; }
 
-    header { 
-      position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px); 
-      background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid rgba(148, 163, 184, 0.1); 
-      padding: 16px; display: flex; align-items: center; justify-content: space-between; 
+    header {
+      position: sticky; top: 0; z-index: 100; backdrop-filter: blur(15px);
+      background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      padding: 16px; display: flex; align-items: center; justify-content: space-between;
       margin: -12px -12px 12px -12px;
     }
 
     .tabs { display: flex; gap: 12px; justify-content: center; padding: 15px 0; }
-    .tab-btn { 
+    .tab-btn {
       width: 55px; height: 55px; display: flex; align-items: center; justify-content: center;
-      border-radius: 50%; border: 1px solid rgba(148, 163, 184, 0.2); 
+      border-radius: 50%; border: 1px solid rgba(148, 163, 184, 0.2);
       background: rgba(30, 41, 59, 0.5); color: var(--muted); font-size: 1.4rem; cursor: pointer; transition: 0.3s;
     }
     .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
@@ -36,7 +36,7 @@
     .field-group { margin-bottom: 12px; }
     label { font-size: 0.7rem; color: var(--muted); display: block; margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
     input { width: 100%; height: var(--control-minh); padding: 0 14px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 1rem; outline: none; }
-    
+
     .btn { width: 100%; height: var(--control-minh); border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
     .btn:active { transform: scale(0.98); }
     .btn-primary { background: var(--primary); color: white; }
@@ -57,48 +57,60 @@
     .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
     .dialog { background: #1e293b; width: 100%; max-width: 400px; border-radius: 20px; padding: 24px; }
 
-    /* CSS KHUSUS PRINT - Dioptimalkan untuk Thermal 58mm */
+    /* PRINT 58MM - dibuat stabil untuk browser print */
     #printArea { display: none; }
+
     @media print {
-      @page { margin: 0; size: 58mm auto; }
-      body { background: white !important; margin: 0; padding: 0; }
-      .app, .bottom-bar, .backdrop, header, .tabs, main { display: none !important; }
-      #printArea { 
-        display: block !important; 
-        width: 54mm; 
-        color: black !important;
-        background: white !important;
-        position: absolute;
-        top: 0; left: 0;
-        margin: 0; padding: 0;
+      @page { margin: 0; size: 58mm auto; } /* 58mm roll, panjang otomatis */ /* [web:16] */
+
+      html, body {
+        width: 58mm;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
       }
-      pre { 
-        white-space: pre-wrap !important; 
-        font-family: 'Courier New', Courier, monospace !important; 
-        font-size: 9pt; 
-        line-height: 1.2; 
-        margin: 0;
-        padding: 0;
-        color: black !important;
+
+      .app, .bottom-bar, .backdrop, header, .tabs, main { display: none !important; }
+
+      #printArea{
+        display:block !important;
+        width:58mm;
+        padding: 2mm 2mm;       /* aman dari margin printer */
+        color:#000 !important;
+        background:#fff !important;
+        position:relative;
+        overflow:hidden;
+      }
+
+      #printArea pre{
+        margin:0;
+        white-space: pre-wrap;  /* wrap untuk pre ketika print */ /* [web:22] */
+        word-break: break-word;
+        font-family: ui-monospace, "Courier New", monospace !important;
+        font-size: 10pt;
+        line-height: 1.2;
+        color:#000 !important;
       }
     }
   </style>
 </head>
-<body>
 
+<body>
+  <!-- LOGIN -->
   <div id="loginBackdrop" class="backdrop">
     <div class="dialog">
-      <h2 style="text-align: center; margin-bottom: 20px;">Kasir Cloud</h2>
-      <input type="password" id="accessInput" placeholder="Kode Akses" style="text-align: center; margin-bottom: 15px;" />
+      <h2 style="text-align:center; margin-bottom:20px;">Kasir Cloud</h2>
+      <input type="password" id="accessInput" placeholder="Kode Akses" style="text-align:center; margin-bottom:15px;" />
       <button class="btn btn-primary" onclick="handleLogin()">BUKA SISTEM</button>
       <p id="loginMsg" style="color:var(--danger); font-size:0.75rem; margin-top:12px; text-align:center;"></p>
     </div>
   </div>
 
+  <!-- APP -->
   <div class="app" id="app" style="display:none;">
     <header>
-      <div id="shopNameHeader" style="font-weight: 800; letter-spacing: 1px;">KASIR</div>
-      <div style="font-size: 0.6rem; color: var(--success); font-weight: bold;">● ONLINE</div>
+      <div id="shopNameHeader" style="font-weight:800; letter-spacing:1px;">KASIR</div>
+      <div style="font-size:0.6rem; color:var(--success); font-weight:bold;">● ONLINE</div>
     </header>
 
     <div class="tabs">
@@ -109,46 +121,58 @@
     </div>
 
     <main>
+      <!-- KASIR -->
       <section id="secKasir">
         <div class="card">
           <label>Cari Produk</label>
-          <input id="searchInput" placeholder="Nama barang..." oninput="renderProductList()" autocomplete="off" />
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+          <input id="searchInput" placeholder="Nama barang / SKU..." oninput="renderProductList()" autocomplete="off" />
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
             <div class="field-group"><label>Jumlah</label><input type="number" id="qtyInput" value="1" min="1" /></div>
             <div class="field-group"><label>Disc Rp</label><input type="number" id="discInput" value="0" min="0" /></div>
           </div>
-          <div style="display: none; max-height: 200px;" id="searchResultWrapper" class="table-wrapper">
+
+          <div style="display:none; max-height:200px;" id="searchResultWrapper" class="table-wrapper">
             <table><tbody id="productTableBody"></tbody></table>
           </div>
         </div>
+
         <div class="card">
-          <h4 style="margin-bottom:10px; font-size: 0.8rem; color: var(--muted);">DAFTAR BELANJA</h4>
+          <h4 style="margin-bottom:10px; font-size:0.8rem; color:var(--muted);">DAFTAR BELANJA</h4>
           <div id="cartItems"></div>
-          <input type="number" id="bayarInput" oninput="calcChange()" placeholder="Bayar Tunai Rp..." style="margin-top:15px; border: 2px solid var(--primary); font-weight: bold;" />
+
+          <input type="number" id="bayarInput" oninput="calcChange()" placeholder="Bayar Tunai Rp..."
+                 style="margin-top:15px; border:2px solid var(--primary); font-weight:bold;" />
           <div id="changeText" style="margin-top:10px; font-weight:800; text-align:right;">Kembali: Rp 0</div>
         </div>
       </section>
 
+      <!-- PRODUK -->
       <section id="secProduk" style="display:none;">
         <div class="card">
           <h3 id="formTitle" style="margin-bottom:15px">Data Produk</h3>
           <input type="hidden" id="pId">
+
           <div class="field-group"><label>Nama Barang</label><input id="pName" /></div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
             <div><label>HPP (Beli)</label><input type="number" id="pBuy" /></div>
             <div><label>Harga Jual</label><input type="number" id="pSell" /></div>
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
             <div><label>Stok</label><input type="number" id="pStock" /></div>
-            <div><label>SKU</label><input id="pSku" readonly style="background: #1e293b; color: var(--muted);" /></div>
+            <div><label>SKU</label><input id="pSku" readonly style="background:#1e293b; color:var(--muted);" /></div>
           </div>
-          <div style="display: flex; gap: 10px; margin-top: 15px;">
+
+          <div style="display:flex; gap:10px; margin-top:15px;">
             <button class="btn btn-primary" onclick="saveProduct()">SIMPAN</button>
             <button class="btn btn-secondary" onclick="clearPForm()">BATAL</button>
           </div>
         </div>
+
         <div class="card">
-          <input id="adminSearchInput" placeholder="Cari stok..." oninput="renderAdminProducts(1)" style="margin-bottom: 10px;" />
+          <input id="adminSearchInput" placeholder="Cari stok..." oninput="renderAdminProducts(1)" style="margin-bottom:10px;" />
           <div class="table-wrapper">
             <table>
               <thead><tr><th>Produk (A-Z)</th><th>Stok</th><th>Aksi</th></tr></thead>
@@ -159,6 +183,7 @@
         </div>
       </section>
 
+      <!-- LAPORAN -->
       <section id="secLaporan" style="display:none;">
         <div class="card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -166,15 +191,17 @@
             <button class="btn btn-secondary btn-sm" onclick="downloadCSV()">CSV</button>
           </div>
         </div>
+
         <div class="card">
-          <h4 style="color:var(--primary); margin-bottom:10px; font-size: 0.8rem;">CETAK ULANG (3 HARI TERAKHIR)</h4>
+          <h4 style="color:var(--primary); margin-bottom:10px; font-size:0.8rem;">CETAK ULANG (3 HARI TERAKHIR)</h4>
           <div class="table-wrapper">
             <table><tbody id="reprintLogBody"></tbody></table>
           </div>
           <div id="reprintPagination" class="pagination"></div>
         </div>
+
         <div class="card">
-          <h4 style="color:var(--success); margin-bottom:10px; font-size: 0.8rem;">REKAP HARIAN</h4>
+          <h4 style="color:var(--success); margin-bottom:10px; font-size:0.8rem;">REKAP HARIAN</h4>
           <div class="table-wrapper">
             <table>
               <thead><tr><th>Tanggal</th><th>Item</th><th>Laba</th></tr></thead>
@@ -184,6 +211,7 @@
         </div>
       </section>
 
+      <!-- SETTING -->
       <section id="secSetting" style="display:none;">
         <div class="card">
           <div class="field-group"><label>Nama Toko</label><input id="sName" /></div>
@@ -191,19 +219,27 @@
           <div class="field-group"><label>No HP</label><input id="sPhone" /></div>
           <button class="btn btn-primary" onclick="saveSettings()">SIMPAN</button>
         </div>
-        <div class="card"><button class="btn btn-danger btn-sm" onclick="resetData()" style="width:100%">RESET DATA</button></div>
+
+        <div class="card">
+          <button class="btn btn-danger btn-sm" onclick="resetData()" style="width:100%">RESET DATA</button>
+        </div>
       </section>
     </main>
 
+    <!-- BOTTOM BAR -->
     <div class="bottom-bar" id="bottomBar">
-      <div class="bottom-inner" style="display:flex; gap:10px; max-width:500px; margin:0 auto; align-items: center;">
-        <div style="flex:1;"><small style="font-size: 0.6rem; color: var(--muted);">TOTAL</small><div id="grandTotal" style="font-weight:900; color:var(--primary); font-size:1.3rem;">Rp 0</div></div>
+      <div style="display:flex; gap:10px; max-width:500px; margin:0 auto; align-items:center;">
+        <div style="flex:1;">
+          <small style="font-size:0.6rem; color:var(--muted);">TOTAL</small>
+          <div id="grandTotal" style="font-weight:900; color:var(--primary); font-size:1.3rem;">Rp 0</div>
+        </div>
         <button class="btn btn-secondary btn-sm" onclick="finishTrx(false)">SIMPAN</button>
-        <button class="btn btn-primary btn-sm" style="padding: 0 20px" onclick="finishTrx(true)">+ STRUK</button>
+        <button class="btn btn-primary btn-sm" style="padding:0 20px" onclick="finishTrx(true)">+ STRUK</button>
       </div>
     </div>
   </div>
 
+  <!-- PRINT AREA -->
   <div id="printArea"></div>
 
   <script>
@@ -215,11 +251,17 @@
     const itemsPerPage = 10;
     let reprintCurrentPage = 1;
 
-    const formatRp = (v) => "Rp " + (v || 0).toLocaleString('id-ID');
-    const generateSKU = () => "BRG-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+    const formatRp = (v) => "Rp " + (Number(v || 0)).toLocaleString('id-ID');
+    const generateSKU = () => "BRG-" + Math.random().toString(36).slice(2, 8).toUpperCase();
 
     async function secureFetch(url, method = 'GET', body = null) {
-      const options = { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
+      const options = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      };
       if (body) options.body = JSON.stringify(body);
       const res = await fetch(url, options);
       if (res.status === 401) location.reload();
@@ -228,14 +270,21 @@
 
     async function handleLogin() {
       const code = document.getElementById('accessInput').value;
-      const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ accessCode: code }) });
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accessCode: code })
+      });
       const data = await res.json();
       if (data.success) {
-        token = data.token; sessionStorage.setItem('kasir_token', token);
+        token = data.token;
+        sessionStorage.setItem('kasir_token', token);
         document.getElementById('loginBackdrop').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         initApp();
-      } else { document.getElementById('loginMsg').innerText = "Kode Salah!"; }
+      } else {
+        document.getElementById('loginMsg').innerText = "Kode Salah!";
+      }
     }
 
     async function initApp() {
@@ -247,6 +296,7 @@
       document.getElementById('reportMonth').value = new Date().toISOString().slice(0, 7);
       document.getElementById('pSku').value = generateSKU();
       await loadProducts();
+      renderCart();
     }
 
     async function loadProducts() {
@@ -257,52 +307,94 @@
     function showTab(t) {
       ['secKasir', 'secProduk', 'secLaporan', 'secSetting'].forEach(s => document.getElementById(s).style.display = 'none');
       ['tabKasir', 'tabProduk', 'tabLaporan', 'tabSetting'].forEach(b => document.getElementById(b).classList.remove('active'));
+
       document.getElementById('sec' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = 'block';
       document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('active');
-      document.getElementById('bottomBar').style.display = (t === 'kasir') ? 'flex' : 'none';
-      if(t === 'laporan') { reprintCurrentPage = 1; renderReport(); }
+
+      document.getElementById('bottomBar').style.display = (t === 'kasir') ? 'block' : 'none';
+
+      if (t === 'laporan') { reprintCurrentPage = 1; renderReport(); }
     }
 
     function renderProductList() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       const wrapper = document.getElementById('searchResultWrapper');
       const body = document.getElementById('productTableBody');
+
       if (!q) { wrapper.style.display = 'none'; return; }
-      const filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
+
+      const filtered = products.filter(p =>
+        (p.name || "").toLowerCase().includes(q) || (p.sku || "").toLowerCase().includes(q)
+      );
+
       wrapper.style.display = 'block';
-      body.innerHTML = filtered.slice(0, 5).map(p => `<tr onclick="addToCart('${p.id}')" style="cursor:pointer"><td>${p.name}<br><small>${p.sku}</small></td><td align="right">${formatRp(p.sell)}</td></tr>`).join('');
+      body.innerHTML = filtered.slice(0, 5).map(p => `
+        <tr onclick="addToCart('${p.id}')" style="cursor:pointer">
+          <td>${p.name}<br><small>${p.sku}</small></td>
+          <td align="right">${formatRp(p.sell)}</td>
+        </tr>
+      `).join('');
     }
 
     function addToCart(id) {
       const p = products.find(x => x.id === id);
       const qty = parseInt(document.getElementById('qtyInput').value) || 1;
       const disc = parseInt(document.getElementById('discInput').value) || 0;
+
+      if (!p) return;
       if (p.stock < qty) return alert("Stok kurang!");
-      cart.push({ productId: id, name: p.name, price: p.sell, buy: p.buy, qty, discount: disc });
-      document.getElementById('searchInput').value = ""; renderProductList(); renderCart();
+
+      cart.push({
+        productId: id,
+        name: p.name,
+        price: Number(p.sell || 0),
+        buy: Number(p.buy || 0),
+        qty,
+        discount: Number(disc || 0)
+      });
+
+      document.getElementById('searchInput').value = "";
+      renderProductList();
+      renderCart();
     }
 
     function renderCart() {
       let total = 0;
+
       document.getElementById('cartItems').innerHTML = cart.map((item, idx) => {
-        let sub = (item.qty * item.price) - item.discount;
+        const sub = (item.qty * item.price) - item.discount;
         total += sub;
-        return `<div style="display:flex; justify-content:space-between; font-size:0.8rem; border-bottom:1px solid #334155; padding:8px 0;">
-          <span onclick="editCartQty(${idx})" style="cursor:pointer"><b>${item.name}</b><br><small>${item.qty} x ${item.price.toLocaleString()}</small></span>
-          <span align="right">${sub.toLocaleString()} <br><b onclick="cart.splice(${idx},1);renderCart()" style="color:red; cursor:pointer">X</b></span>
-        </div>`;
+
+        return `
+          <div style="display:flex; justify-content:space-between; font-size:0.8rem; border-bottom:1px solid #334155; padding:8px 0;">
+            <span onclick="editCartQty(${idx})" style="cursor:pointer">
+              <b>${item.name}</b><br>
+              <small>${item.qty} x ${item.price.toLocaleString('id-ID')}</small>
+            </span>
+            <span style="text-align:right">
+              ${sub.toLocaleString('id-ID')}<br>
+              <b onclick="cart.splice(${idx},1);renderCart()" style="color:red; cursor:pointer">X</b>
+            </span>
+          </div>
+        `;
       }).join('');
+
       document.getElementById('grandTotal').innerText = formatRp(total);
       calcChange();
     }
 
     function editCartQty(idx) {
       const n = prompt("Ganti Jumlah:", cart[idx].qty);
-      if(n !== null && n > 0) {
-        const p = products.find(x => x.id === cart[idx].productId);
-        if(p.stock < parseInt(n)) return alert("Stok kurang!");
-        cart[idx].qty = parseInt(n); renderCart();
-      }
+      if (n === null) return;
+
+      const newQty = parseInt(n);
+      if (!newQty || newQty <= 0) return;
+
+      const p = products.find(x => x.id === cart[idx].productId);
+      if (p && p.stock < newQty) return alert("Stok kurang!");
+
+      cart[idx].qty = newQty;
+      renderCart();
     }
 
     function calcChange() {
@@ -312,100 +404,169 @@
     }
 
     async function finishTrx(isPrint) {
-      if(!cart.length) return;
+      if (!cart.length) return;
+
       const total = cart.reduce((a, b) => a + (b.qty * b.price - b.discount), 0);
       const bayar = parseInt(document.getElementById('bayarInput').value) || 0;
-      if(isPrint && bayar < total) return alert("Uang Kurang!");
-      const trx = { id: "INV" + Date.now().toString().slice(-6), date: new Date().toISOString(), total, bayar, items: [...cart] };
+
+      if (isPrint && bayar < total) return alert("Uang Kurang!");
+
+      const trx = {
+        id: "INV" + Date.now().toString().slice(-6),
+        date: new Date().toISOString(),
+        total,
+        bayar,
+        items: [...cart]
+      };
+
       const res = await secureFetch('/api/sales', 'POST', trx);
-      if(res.success) {
-        if(isPrint) printStruk(trx); else alert("Simpan Berhasil!");
-        cart = []; document.getElementById('bayarInput').value = "";
-        await loadProducts(); renderCart();
+      if (res && res.success) {
+        if (isPrint) printStruk(trx);
+        else alert("Simpan Berhasil!");
+
+        cart = [];
+        document.getElementById('bayarInput').value = "";
+        await loadProducts();
+        renderCart();
       }
     }
 
-    // --- LOGIKA CETAK 58MM (32 Karakter) ---
+    // CETAK STRUK 58MM (32 KARAKTER / BARIS)
     function printStruk(trx) {
-      const W = 32; 
+      const W = 32; // 58mm biasanya 32 kolom untuk Font A [web:19]
+
+      const clean = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
+
       const center = (s) => {
-        const space = Math.max(0, Math.floor((W - s.length) / 2));
-        return " ".repeat(space) + s;
+        s = clean(s);
+        if (s.length >= W) return s.slice(0, W);
+        const left = Math.floor((W - s.length) / 2);
+        return " ".repeat(left) + s;
       };
+
+      const right = (s) => {
+        s = String(s ?? "");
+        if (s.length >= W) return s.slice(-W);
+        return " ".repeat(W - s.length) + s;
+      };
+
       const justify = (l, r) => {
-        const space = Math.max(1, W - String(l).length - String(r).length);
-        return l + " ".repeat(space) + r;
-      };
-      const wrapText = (text) => {
-        let lines = [];
-        for (let i = 0; i < text.length; i += W) {
-          lines.push(text.substring(i, i + W));
+        l = clean(l);
+        r = String(r ?? "");
+        if (l.length + r.length >= W) {
+          return l.slice(0, W) + "\n" + right(r);
         }
+        return l + " ".repeat(W - l.length - r.length) + r;
+      };
+
+      const wrapWords = (text, indent = "") => {
+        text = clean(text);
+        if (!text) return [];
+        const words = text.split(" ");
+        const lines = [];
+        let line = "";
+        const max = W - indent.length;
+
+        for (const w of words) {
+          const candidate = line ? (line + " " + w) : w;
+          if (candidate.length <= max) line = candidate;
+          else {
+            if (line) lines.push(indent + line);
+
+            if (w.length > max) {
+              for (let i = 0; i < w.length; i += max) {
+                lines.push(indent + w.slice(i, i + max));
+              }
+              line = "";
+            } else {
+              line = w;
+            }
+          }
+        }
+        if (line) lines.push(indent + line);
         return lines;
       };
 
+      const money = (n) => (Number(n || 0)).toLocaleString("id-ID");
+
       const dt = new Date(trx.date);
-      const dateStr = dt.toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit', year:'2-digit'});
-      const timeStr = dt.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+      const dateStr = dt.toLocaleDateString('id-ID', { day:'2-digit', month:'2-digit', year:'2-digit' });
+      const timeStr = dt.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
 
-      let res = "";
-      res += center((settings.name || "TOKO").toUpperCase()) + "\n";
-      if(settings.address) res += center(settings.address) + "\n";
-      if(settings.phone) res += center(settings.phone) + "\n";
-      res += "=".repeat(W) + "\n";
-      
-      res += justify(dateStr, timeStr) + "\n";
-      res += justify("INV", trx.id) + "\n";
-      res += "-".repeat(W) + "\n";
+      let out = "";
+      out += center((settings.name || "TOKO").toUpperCase()) + "\n";
+      if (settings.address) wrapWords(settings.address).forEach(l => out += center(l) + "\n");
+      if (settings.phone) out += center(settings.phone) + "\n";
+      out += "=".repeat(W) + "\n";
 
-      trx.items.forEach(i => {
+      out += justify(dateStr, timeStr) + "\n";
+      out += justify("INV", trx.id) + "\n";
+      out += "-".repeat(W) + "\n";
+
+      trx.items.forEach((i) => {
         const sub = (i.qty * i.price - i.discount);
-        // Baris 1: Nama Barang
-        const nameLines = wrapText(i.name);
-        nameLines.forEach(line => res += line + "\n");
-        // Baris 2: Detail Qty x Harga dan Subtotal
-        res += justify(` ${i.qty} x ${i.price.toLocaleString()}`, sub.toLocaleString()) + "\n";
-        if(i.discount > 0) res += justify("  Disc", "-" + i.discount.toLocaleString()) + "\n";
+
+        wrapWords(i.name).forEach(l => out += l + "\n");
+        out += justify(`${i.qty} x ${money(i.price)}`, money(sub)) + "\n";
+        if (i.discount > 0) out += justify("Disc", "-" + money(i.discount)) + "\n";
+        out += "-".repeat(W) + "\n";
       });
 
-      res += "-".repeat(W) + "\n";
-      res += justify("TOTAL", trx.total.toLocaleString()) + "\n";
-      res += justify("BAYAR", (trx.bayar || 0).toLocaleString()) + "\n";
-      res += justify("KEMBALI", ((trx.bayar || 0) - trx.total).toLocaleString()) + "\n";
-      res += "=".repeat(W) + "\n";
-      res += "\n" + center("TERIMA KASIH") + "\n";
-      res += center("SUDAH BERBELANJA") + "\n\n\n\n\n";
+      out += justify("TOTAL", money(trx.total)) + "\n";
+      out += justify("BAYAR", money(trx.bayar || 0)) + "\n";
+      out += justify("KEMBALI", money((trx.bayar || 0) - trx.total)) + "\n";
+      out += "=".repeat(W) + "\n";
+      out += center("TERIMA KASIH") + "\n";
+      out += center("SUDAH BERBELANJA") + "\n\n\n";
 
       const pArea = document.getElementById('printArea');
-      pArea.innerHTML = `<pre>${res}</pre>`;
+      // aman: pre formatted
+      pArea.innerHTML = `<pre>${out}</pre>`;
 
       setTimeout(() => {
         window.print();
-        setTimeout(() => { pArea.innerHTML = ""; }, 1000);
-      }, 600);
+        setTimeout(() => { pArea.innerHTML = ""; }, 500);
+      }, 300);
     }
 
     async function saveProduct() {
-      const p = { id: document.getElementById('pId').value || "p"+Date.now(), name: document.getElementById('pName').value, buy: parseInt(document.getElementById('pBuy').value), sell: parseInt(document.getElementById('pSell').value), stock: parseInt(document.getElementById('pStock').value), sku: document.getElementById('pSku').value };
-      if(!p.name) return alert("Nama wajib!");
+      const p = {
+        id: document.getElementById('pId').value || ("p" + Date.now()),
+        name: document.getElementById('pName').value,
+        buy: parseInt(document.getElementById('pBuy').value) || 0,
+        sell: parseInt(document.getElementById('pSell').value) || 0,
+        stock: parseInt(document.getElementById('pStock').value) || 0,
+        sku: document.getElementById('pSku').value
+      };
+
+      if (!p.name) return alert("Nama wajib!");
       await secureFetch('/api/products', 'POST', p);
-      clearPForm(); await loadProducts();
+      clearPForm();
+      await loadProducts();
     }
 
     function renderAdminProducts(page) {
       const q = document.getElementById('adminSearchInput').value.toLowerCase();
-      const filtered = products.filter(x => x.name.toLowerCase().includes(q) || x.sku.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
-      const totalPages = Math.ceil(filtered.length / itemsPerPage);
+      const filtered = products
+        .filter(x => (x.name || "").toLowerCase().includes(q) || (x.sku || "").toLowerCase().includes(q))
+        .sort((a,b)=> (a.name || "").localeCompare(b.name || ""));
+
+      const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
       const start = (page - 1) * itemsPerPage;
-      
-      document.getElementById('adminProductTableBody').innerHTML = filtered.slice(start, start + itemsPerPage).map(x => `<tr>
-        <td><b>${x.name}</b><br><small>${x.sku}</small></td>
-        <td>${x.stock}</td>
-        <td><button class="btn-primary btn-sm" onclick="editProduct('${x.id}')">E</button> <button class="btn-danger btn-sm" onclick="deleteProduct('${x.id}')">X</button></td>
-      </tr>`).join('');
+
+      document.getElementById('adminProductTableBody').innerHTML = filtered.slice(start, start + itemsPerPage).map(x => `
+        <tr>
+          <td><b>${x.name}</b><br><small>${x.sku}</small></td>
+          <td>${x.stock}</td>
+          <td>
+            <button class="btn-primary btn-sm" onclick="editProduct('${x.id}')">E</button>
+            <button class="btn-danger btn-sm" onclick="deleteProduct('${x.id}')">X</button>
+          </td>
+        </tr>
+      `).join('');
 
       let phtml = "";
-      for(let i=1; i<=totalPages; i++) {
+      for (let i = 1; i <= totalPages; i++) {
         phtml += `<button class="page-btn ${i===page?'active':''}" onclick="renderAdminProducts(${i})">${i}</button>`;
       }
       document.getElementById('adminPagination').innerHTML = phtml;
@@ -413,55 +574,80 @@
 
     function editProduct(id) {
       const x = products.find(p => p.id === id);
-      document.getElementById('pId').value = x.id; document.getElementById('pName').value = x.name;
-      document.getElementById('pBuy').value = x.buy; document.getElementById('pSell').value = x.sell;
-      document.getElementById('pStock').value = x.stock; document.getElementById('pSku').value = x.sku;
+      if (!x) return;
+
+      document.getElementById('pId').value = x.id;
+      document.getElementById('pName').value = x.name || "";
+      document.getElementById('pBuy').value = x.buy || 0;
+      document.getElementById('pSell').value = x.sell || 0;
+      document.getElementById('pStock').value = x.stock || 0;
+      document.getElementById('pSku').value = x.sku || generateSKU();
       document.getElementById('formTitle').innerText = "Edit Barang";
-      window.scrollTo(0,0);
+      window.scrollTo(0, 0);
     }
 
     async function deleteProduct(id) {
-      if(confirm("Hapus barang?")) {
+      if (confirm("Hapus barang?")) {
         await secureFetch(`/api/products?id=${id}`, 'DELETE');
         await loadProducts();
       }
     }
 
-    function clearPForm() { 
-      ['pId','pName','pBuy','pSell','pStock'].forEach(id => document.getElementById(id).value = ""); 
+    function clearPForm() {
+      ['pId','pName','pBuy','pSell','pStock'].forEach(id => document.getElementById(id).value = "");
       document.getElementById('pSku').value = generateSKU();
       document.getElementById('formTitle').innerText = "Data Produk";
     }
 
     async function renderReport() {
-      const sales = await secureFetch(`/api/sales?month=${document.getElementById('reportMonth').value}`);
-      currentSales = sales;
-      const recent = sales.filter(s => (new Date() - new Date(s.date)) / 86400000 <= 3).sort((a,b) => new Date(b.date)-new Date(a.date));
-      
-      const totalPages = Math.ceil(recent.length / itemsPerPage);
+      const month = document.getElementById('reportMonth').value;
+      const sales = await secureFetch(`/api/sales?month=${month}`);
+      currentSales = sales || [];
+
+      const recent = currentSales
+        .filter(s => (new Date() - new Date(s.date)) / 86400000 <= 3)
+        .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+      const totalPages = Math.ceil(recent.length / itemsPerPage) || 1;
       const start = (reprintCurrentPage - 1) * itemsPerPage;
-      
-      document.getElementById('reprintLogBody').innerHTML = recent.slice(start, start + itemsPerPage).map(s => `<tr>
-        <td><small>${new Date(s.date).toLocaleDateString('id-ID')}</small><br><b>${formatRp(s.total)}</b></td>
-        <td align="right"><button class="btn-primary btn-sm" onclick='printStruk(${JSON.stringify(s)})'>CETAK</button></td>
-      </tr>`).join('');
+
+      document.getElementById('reprintLogBody').innerHTML = recent.slice(start, start + itemsPerPage).map(s => `
+        <tr>
+          <td>
+            <small>${new Date(s.date).toLocaleDateString('id-ID')}</small><br>
+            <b>${formatRp(s.total)}</b>
+          </td>
+          <td align="right">
+            <button class="btn-primary btn-sm" onclick='printStruk(${JSON.stringify(s)})'>CETAK</button>
+          </td>
+        </tr>
+      `).join('');
 
       let phtml = "";
-      for(let i=1; i<=totalPages; i++) {
+      for (let i = 1; i <= totalPages; i++) {
         phtml += `<button class="page-btn ${i===reprintCurrentPage?'active':''}" onclick="reprintPageGo(${i})">${i}</button>`;
       }
       document.getElementById('reprintPagination').innerHTML = phtml;
 
-      let daily = {};
-      sales.forEach(s => {
-        let d = new Date(s.date).toLocaleDateString('id-ID');
-        if(!daily[d]) daily[d] = { qty:0, laba:0 };
-        s.items.forEach(i => {
-          daily[d].qty += i.qty;
-          daily[d].laba += (i.qty * i.price - i.discount) - (i.qty * i.buy);
+      const daily = {};
+      currentSales.forEach(s => {
+        const d = new Date(s.date).toLocaleDateString('id-ID');
+        if (!daily[d]) daily[d] = { qty: 0, laba: 0 };
+
+        (s.items || []).forEach(i => {
+          daily[d].qty += Number(i.qty || 0);
+          daily[d].laba += (Number(i.qty||0) * Number(i.price||0) - Number(i.discount||0)) - (Number(i.qty||0) * Number(i.buy||0));
         });
       });
-      document.getElementById('dailyReportBody').innerHTML = Object.keys(daily).map(d => `<tr><td>${d}</td><td>${daily[d].qty}</td><td style="color:var(--success)">${formatRp(daily[d].laba)}</td></tr>`).join('');
+
+      document.getElementById('dailyReportBody').innerHTML =
+        Object.keys(daily).map(d => `
+          <tr>
+            <td>${d}</td>
+            <td>${daily[d].qty}</td>
+            <td style="color:var(--success)">${formatRp(daily[d].laba)}</td>
+          </tr>
+        `).join('');
     }
 
     function reprintPageGo(p) { reprintCurrentPage = p; renderReport(); }
@@ -470,10 +656,12 @@
       let csv = "Tanggal,Nama Barang,Qty,Beli,Jual,Diskon,Laba\n";
       currentSales.forEach(s => {
         const d = new Date(s.date).toLocaleDateString('id-ID');
-        s.items.forEach(i => {
-          csv += `${d},${i.name},${i.qty},${i.buy},${i.price},${i.discount},${(i.qty*i.price-i.discount)-(i.qty*i.buy)}\n`;
+        (s.items || []).forEach(i => {
+          const laba = (i.qty*i.price - i.discount) - (i.qty*i.buy);
+          csv += `${d},"${String(i.name||"").replace(/"/g,'""')}",${i.qty},${i.buy},${i.price},${i.discount},${laba}\n`;
         });
       });
+
       const blob = new Blob([csv], { type: 'text/csv' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -482,18 +670,27 @@
     }
 
     async function saveSettings() {
-      await secureFetch('/api/settings', 'POST', { name: document.getElementById('sName').value, address: document.getElementById('sAddr').value, phone: document.getElementById('sPhone').value });
-      alert("Tersimpan"); location.reload();
+      await secureFetch('/api/settings', 'POST', {
+        name: document.getElementById('sName').value,
+        address: document.getElementById('sAddr').value,
+        phone: document.getElementById('sPhone').value
+      });
+      alert("Tersimpan");
+      location.reload();
     }
 
     async function resetData() {
-      if(confirm("Hapus semua data di Cloud?")) {
+      if (confirm("Hapus semua data di Cloud?")) {
         await secureFetch('/api/settings', 'DELETE');
         location.reload();
       }
     }
 
-    if(token) { document.getElementById('loginBackdrop').style.display='none'; document.getElementById('app').style.display='block'; initApp(); }
+    if (token) {
+      document.getElementById('loginBackdrop').style.display='none';
+      document.getElementById('app').style.display='block';
+      initApp();
+    }
   </script>
 </body>
 </html>
