@@ -75,8 +75,8 @@
       pre { 
         white-space: pre-wrap !important; 
         font-family: 'Courier New', Courier, monospace !important; 
-        font-size: 9pt; /* Ukuran font standar struk */
-        line-height: 1.1; 
+        font-size: 9pt; 
+        line-height: 1.2; 
         margin: 0;
         padding: 0;
         color: black !important;
@@ -344,44 +344,45 @@
         return lines;
       };
 
+      const dt = new Date(trx.date);
+      const dateStr = dt.toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit', year:'2-digit'});
+      const timeStr = dt.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+
       let res = "";
-      // Header Toko
       res += center((settings.name || "TOKO").toUpperCase()) + "\n";
       if(settings.address) res += center(settings.address) + "\n";
       if(settings.phone) res += center(settings.phone) + "\n";
       res += "=".repeat(W) + "\n";
       
-      // Info Invoice
-      res += justify(new Date(trx.date).toLocaleDateString('id-ID'), new Date(trx.date).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})) + "\n";
+      res += justify(dateStr, timeStr) + "\n";
       res += justify("INV", trx.id) + "\n";
       res += "-".repeat(W) + "\n";
 
-      // Item List
       trx.items.forEach(i => {
         const sub = (i.qty * i.price - i.discount);
+        // Baris 1: Nama Barang
         const nameLines = wrapText(i.name);
         nameLines.forEach(line => res += line + "\n");
+        // Baris 2: Detail Qty x Harga dan Subtotal
         res += justify(` ${i.qty} x ${i.price.toLocaleString()}`, sub.toLocaleString()) + "\n";
         if(i.discount > 0) res += justify("  Disc", "-" + i.discount.toLocaleString()) + "\n";
       });
 
-      // Footer / Total
       res += "-".repeat(W) + "\n";
       res += justify("TOTAL", trx.total.toLocaleString()) + "\n";
       res += justify("BAYAR", (trx.bayar || 0).toLocaleString()) + "\n";
       res += justify("KEMBALI", ((trx.bayar || 0) - trx.total).toLocaleString()) + "\n";
       res += "=".repeat(W) + "\n";
       res += "\n" + center("TERIMA KASIH") + "\n";
-      res += center("SUDAH BERBELANJA") + "\n\n\n\n\n"; // Padding kertas keluar
+      res += center("SUDAH BERBELANJA") + "\n\n\n\n\n";
 
       const pArea = document.getElementById('printArea');
       pArea.innerHTML = `<pre>${res}</pre>`;
 
-      // Delay Rendering untuk browser mobile
       setTimeout(() => {
         window.print();
         setTimeout(() => { pArea.innerHTML = ""; }, 1000);
-      }, 500);
+      }, 600);
     }
 
     async function saveProduct() {
