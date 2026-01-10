@@ -57,7 +57,7 @@
     .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
     .dialog { background: #1e293b; width: 100%; max-width: 400px; border-radius: 20px; padding: 24px; }
 
-    /* CSS KHUSUS PRINT - Dioptimalkan untuk Mobile & Thermal 58mm */
+    /* CSS KHUSUS PRINT - Dioptimalkan untuk Thermal 58mm */
     #printArea { display: none; }
     @media print {
       @page { margin: 0; size: 58mm auto; }
@@ -65,7 +65,7 @@
       .app, .bottom-bar, .backdrop, header, .tabs, main { display: none !important; }
       #printArea { 
         display: block !important; 
-        width: 54mm; /* Sedikit lebih kecil dari 58mm untuk margin fisik printer */
+        width: 54mm; 
         color: black !important;
         background: white !important;
         position: absolute;
@@ -75,10 +75,10 @@
       pre { 
         white-space: pre-wrap !important; 
         font-family: 'Courier New', Courier, monospace !important; 
-        font-size: 10pt; 
-        line-height: 1.2; 
+        font-size: 9pt; /* Ukuran font standar struk */
+        line-height: 1.1; 
         margin: 0;
-        padding: 2mm;
+        padding: 0;
         color: black !important;
       }
     }
@@ -336,7 +336,6 @@
         const space = Math.max(1, W - String(l).length - String(r).length);
         return l + " ".repeat(space) + r;
       };
-      // Fungsi Wrap Text untuk Nama Barang Panjang
       const wrapText = (text) => {
         let lines = [];
         for (let i = 0; i < text.length; i += W) {
@@ -346,13 +345,18 @@
       };
 
       let res = "";
-      res += center(settings.name || "TOKO") + "\n";
+      // Header Toko
+      res += center((settings.name || "TOKO").toUpperCase()) + "\n";
       if(settings.address) res += center(settings.address) + "\n";
-      if(settings.phone) res += center("HP: " + settings.phone) + "\n";
-      res += "-".repeat(W) + "\n";
-      res += justify("INV: " + trx.id, new Date(trx.date).toLocaleDateString('id-ID')) + "\n";
+      if(settings.phone) res += center(settings.phone) + "\n";
+      res += "=".repeat(W) + "\n";
+      
+      // Info Invoice
+      res += justify(new Date(trx.date).toLocaleDateString('id-ID'), new Date(trx.date).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'})) + "\n";
+      res += justify("INV", trx.id) + "\n";
       res += "-".repeat(W) + "\n";
 
+      // Item List
       trx.items.forEach(i => {
         const sub = (i.qty * i.price - i.discount);
         const nameLines = wrapText(i.name);
@@ -361,22 +365,23 @@
         if(i.discount > 0) res += justify("  Disc", "-" + i.discount.toLocaleString()) + "\n";
       });
 
+      // Footer / Total
       res += "-".repeat(W) + "\n";
       res += justify("TOTAL", trx.total.toLocaleString()) + "\n";
       res += justify("BAYAR", (trx.bayar || 0).toLocaleString()) + "\n";
       res += justify("KEMBALI", ((trx.bayar || 0) - trx.total).toLocaleString()) + "\n";
-      res += "-".repeat(W) + "\n";
-      res += "\n" + center("TERIMA KASIH") + "\n\n\n\n\n";
+      res += "=".repeat(W) + "\n";
+      res += "\n" + center("TERIMA KASIH") + "\n";
+      res += center("SUDAH BERBELANJA") + "\n\n\n\n\n"; // Padding kertas keluar
 
       const pArea = document.getElementById('printArea');
       pArea.innerHTML = `<pre>${res}</pre>`;
 
-      // Delay rendering agar mobile browser menangkap konten sebelum dialog print muncul
+      // Delay Rendering untuk browser mobile
       setTimeout(() => {
         window.print();
-        // Kosongkan area setelah 1 detik agar tidak mengganggu UI utama
         setTimeout(() => { pArea.innerHTML = ""; }, 1000);
-      }, 700);
+      }, 500);
     }
 
     async function saveProduct() {
