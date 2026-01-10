@@ -90,9 +90,9 @@
 
   <div id="loginBackdrop" class="backdrop">
     <div class="dialog">
-      <h2 style="text-align: center; margin-bottom: 20px;">Kasir Cloud</h2>
+      <h2 style="text-align: center; margin-bottom: 20px;">Kasir App</h2>
       <input type="password" id="accessInput" placeholder="Kode Akses" style="text-align: center; margin-bottom: 15px;" />
-      <button class="btn btn-primary" onclick="handleLogin()">BUKA SISTEM</button>
+      <button class="btn btn-primary" onclick="handleLogin()">Buka Sistem</button>
       <p id="loginMsg" style="color:var(--danger); font-size:0.75rem; margin-top:12px; text-align:center;"></p>
     </div>
   </div>
@@ -100,7 +100,7 @@
   <div class="app" id="app" style="display:none;">
     <header>
       <div id="shopNameHeader" style="font-weight: 800; letter-spacing: 1px;">KASIR</div>
-      <div style="font-size: 0.6rem; color: var(--success); font-weight: bold;">● ONLINE</div>
+      <div style="font-size: 0.6rem; color: var(--success); font-weight: bold;">● On</div>
     </header>
 
     <div class="tabs">
@@ -117,7 +117,7 @@
           <input id="searchInput" placeholder="Nama barang..." oninput="renderProductList()" autocomplete="off" />
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
             <div class="field-group"><label>Jumlah</label><input type="number" id="qtyInput" value="1" min="1" /></div>
-            <div class="field-group"><label>Disc Rp</label><input type="number" id="discInput" value="0" min="0" /></div>
+            <div class="field-group"><label>Disc (Rp)</label><input type="number" id="discInput" value="0" min="0" /></div>
           </div>
           <div style="display: none; max-height: 200px;" id="searchResultWrapper" class="table-wrapper">
             <table><tbody id="productTableBody"></tbody></table>
